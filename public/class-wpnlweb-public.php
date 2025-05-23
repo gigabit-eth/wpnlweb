@@ -176,7 +176,7 @@ class Wpnlweb_Public
 		}
 
 		// Use the existing NLWeb server logic
-		if (class_exists('WP_NLWeb_Server')) {
+		if (class_exists('Wpnlweb_Server')) {
 
 			// Create a proper WP_REST_Request object
 			$request = new WP_REST_Request('POST');
@@ -184,7 +184,7 @@ class Wpnlweb_Public
 			$request->set_param('context', array('limit' => $max_results));
 
 			// Get the server instance and handle the request
-			$server = new WP_NLWeb_Server();
+			$server = new Wpnlweb_Server('wpnlweb', WPNLWEB_VERSION);
 			$response = $server->handle_ask($request);
 
 			// Check if response is WP_Error

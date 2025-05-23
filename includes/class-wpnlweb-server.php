@@ -1,0 +1,314 @@
+<?php
+
+/**
+ * The NLWeb server functionality of the plugin.
+ *
+ * @link       https://typewriter.sh
+ * @since      1.0.0
+ *
+ * @package    Wpnlweb
+ * @subpackage Wpnlweb/includes
+ */
+
+/**
+ * The NLWeb server class.
+ *
+ * Defines the core NLWeb protocol implementation including REST API endpoints,
+ * MCP server compatibility, and enhanced query processing.
+ *
+ * @since      1.0.0
+ * @package    Wpnlweb
+ * @subpackage Wpnlweb/includes
+ * @author     TypeWriter <team@typewriter.sh>
+ */
+class Wpnlweb_Server
+{
+
+    /**
+     * The ID of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $plugin_name    The ID of this plugin.
+     */
+    private $plugin_name;
+
+    /**
+     * The version of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $version    The current version of this plugin.
+     */
+    private $version;
+
+    /**
+     * Initialize the class and set its properties.
+     *
+     * @since    1.0.0
+     * @param      string    $plugin_name       The name of this plugin.
+     * @param      string    $version    The version of this plugin.
+     */
+    public function __construct($plugin_name, $version)
+    {
+        $this->plugin_name = $plugin_name;
+        $this->version = $version;
+
+        // Register REST API endpoints
+        add_action('rest_api_init', array($this, 'register_routes'));
+        add_action('rest_api_init', array($this, 'add_cors_support'));
+
+        // Register MCP AJAX handlers
+        add_action('wp_ajax_nopriv_mcp_ask', array($this, 'handle_mcp_ask'));
+        add_action('wp_ajax_mcp_ask', array($this, 'handle_mcp_ask'));
+    }
+
+    /**
+     * Register the /ask endpoint
+     *
+     * @since    1.0.0
+     */
+    public function register_routes()
+    {
+        register_rest_route('nlweb/v1', '/ask', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'handle_ask'),
+            'permission_callback' => '__return_true', // Adjust as needed
+        ));
+    }
+
+    /**
+     * Add CORS support for AI agents
+     *
+     * @since    1.0.0
+     */
+    public function add_cors_support()
+    {
+        remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+        add_filter('rest_pre_serve_request', function ($value) {
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization');
+            return $value;
+        });
+    }
+
+    /**
+     * Main NLWeb /ask endpoint handler
+     *
+     * @since    1.0.0
+     * @param    WP_REST_Request    $request    WordPress REST request object
+     * @return   array|WP_Error     Schema.org formatted response or error
+     */
+    public function handle_ask($request)
+    {
+        // Add CORS headers for AI agents/browsers
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+        // Handle preflight OPTIONS request
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
+
+        $question = $request->get_param('question');
+        $context = $request->get_param('context') ?? array();
+
+        if (empty($question)) {
+            return new WP_Error('missing_question', 'Question parameter required', array('status' => 400));
+        }
+
+        // Process the natural language query
+        $results = $this->process_query($question, $context);
+
+        // Format response according to NLWeb spec
+        return $this->format_nlweb_response($results, $question);
+    }
+
+    /**
+     * Process natural language query into WordPress results
+     *
+     * @since    1.0.0
+     * @param    string    $question    Natural language question
+     * @param    array     $context     Additional query context
+     * @return   array     Array of matching post objects
+     */
+    public function process_query($question, $context = array())
+    {
+        // Simple keyword extraction (you'd enhance this with LLM/vector search)
+        $keywords = $this->extract_keywords($question);
+
+        // Build WordPress query
+        $query_args = array(
+            'post_status' => 'publish',
+            'posts_per_page' => isset($context['limit']) ? intval($context['limit']) : 10,
+            's' => implode(' ', $keywords),
+        );
+
+        // Enhance with context if provided
+        if (!empty($context['post_type'])) {
+            $query_args['post_type'] = sanitize_text_field($context['post_type']);
+        }
+
+        if (!empty($context['category'])) {
+            $query_args['category_name'] = sanitize_text_field($context['category']);
+        }
+
+        $query = new WP_Query($query_args);
+
+        return $query->posts;
+    }
+
+    /**
+     * Format response according to NLWeb/Schema.org standards
+     *
+     * @since    1.0.0
+     * @param    array     $posts       Array of post objects
+     * @param    string    $question    Original question
+     * @return   array     Schema.org formatted response
+     */
+    private function format_nlweb_response($posts, $question)
+    {
+        $items = array();
+
+        foreach ($posts as $post) {
+            $items[] = array(
+                '@type' => 'Article', // Could be dynamic based on post type
+                '@id' => get_permalink($post->ID),
+                'name' => $post->post_title,
+                'description' => wp_trim_words($post->post_content, 30),
+                'url' => get_permalink($post->ID),
+                'datePublished' => $post->post_date,
+                'author' => array(
+                    '@type' => 'Person',
+                    'name' => get_the_author_meta('display_name', $post->post_author)
+                )
+            );
+        }
+
+        return array(
+            '@context' => 'https://schema.org',
+            '@type' => 'SearchResultsPage',
+            'query' => $question,
+            'totalResults' => count($items),
+            'items' => $items
+        );
+    }
+
+    /**
+     * Simple keyword extraction (enhance with NLP)
+     *
+     * @since    1.0.0
+     * @param    string    $question    Natural language question
+     * @return   array     Array of extracted keywords
+     */
+    private function extract_keywords($question)
+    {
+        // Remove common words, extract meaningful terms
+        $stop_words = array('what', 'where', 'when', 'how', 'is', 'are', 'the', 'a', 'an', 'and', 'or', 'but');
+        $words = explode(' ', strtolower(sanitize_text_field($question)));
+
+        return array_filter($words, function ($word) use ($stop_words) {
+            return !in_array($word, $stop_words) && strlen($word) > 2;
+        });
+    }
+
+    /**
+     * Handle MCP (Model Context Protocol) AJAX requests
+     *
+     * @since    1.0.0
+     */
+    public function handle_mcp_ask()
+    {
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (isset($input['method']) && $input['method'] === 'ask') {
+            $question = sanitize_text_field($input['params']['question']);
+
+            // Create a proper WP_REST_Request object
+            $request = new WP_REST_Request('POST');
+            $request->set_param('question', $question);
+
+            $response = $this->handle_ask($request);
+
+            wp_send_json(array(
+                'jsonrpc' => '2.0',
+                'id' => $input['id'],
+                'result' => $response
+            ));
+        }
+
+        wp_die();
+    }
+}
+
+/**
+ * Enhanced query processor with vector search preparation
+ *
+ * @since      1.0.0
+ * @package    Wpnlweb
+ * @subpackage Wpnlweb/includes
+ * @author     TypeWriter <team@typewriter.sh>
+ */
+class Wpnlweb_Enhanced_Query
+{
+
+    /**
+     * Vector store instance for future vector search implementation
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      mixed    $vector_store    Vector store instance
+     */
+    private $vector_store;
+
+    /**
+     * Initialize the enhanced query processor
+     *
+     * @since    1.0.0
+     * @param    array    $vector_config    Vector search configuration
+     */
+    public function __construct($vector_config = array())
+    {
+        // Initialize your vector store (Qdrant, etc.)
+        // $this->vector_store = new VectorStore($vector_config);
+    }
+
+    /**
+     * Perform semantic search (future implementation)
+     *
+     * @since    1.0.0
+     * @param    string    $question    Natural language question
+     * @param    int       $limit       Maximum number of results
+     * @return   array     Array of matching posts
+     */
+    public function semantic_search($question, $limit = 10)
+    {
+        // Convert question to embedding
+        // Search vector store
+        // Return relevant post IDs
+        // Fall back to keyword search if vector search unavailable
+
+        return $this->keyword_fallback($question, $limit);
+    }
+
+    /**
+     * Keyword-based search fallback
+     *
+     * @since    1.0.0
+     * @param    string    $question    Natural language question
+     * @param    int       $limit       Maximum number of results
+     * @return   array     Array of matching posts
+     */
+    private function keyword_fallback($question, $limit)
+    {
+        // Your existing keyword-based search
+        $query = new WP_Query(array(
+            's' => sanitize_text_field($question),
+            'posts_per_page' => intval($limit)
+        ));
+
+        return $query->posts;
+    }
+}
