@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       WPNLWeb
  * Plugin URI:        https://wpnlweb.com
- * Description:       Turn your Wordpress website into a conversational interface for users, and AI agents. 
+ * Description:       Turn your Wordpress site into a natural language interface for users, and AI agents using Microsoft's NLWeb Protocol. 
  * Version:           1.0.0
  * Author:            TypeWriter
  * Author URI:        https://typewriter.sh/
@@ -26,7 +26,7 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -35,14 +35,15 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'WPNLWEB_VERSION', '1.0.0' );
+define('WPNLWEB_VERSION', '1.0.0');
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wpnlweb-activator.php
  */
-function activate_wpnlweb() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpnlweb-activator.php';
+function activate_wpnlweb()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-wpnlweb-activator.php';
 	Wpnlweb_Activator::activate();
 }
 
@@ -50,19 +51,20 @@ function activate_wpnlweb() {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-wpnlweb-deactivator.php
  */
-function deactivate_wpnlweb() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpnlweb-deactivator.php';
+function deactivate_wpnlweb()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-wpnlweb-deactivator.php';
 	Wpnlweb_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_wpnlweb' );
-register_deactivation_hook( __FILE__, 'deactivate_wpnlweb' );
+register_activation_hook(__FILE__, 'activate_wpnlweb');
+register_deactivation_hook(__FILE__, 'deactivate_wpnlweb');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-wpnlweb.php';
+require plugin_dir_path(__FILE__) . 'includes/class-wpnlweb.php';
 
 /**
  * Begins execution of the plugin.
@@ -73,10 +75,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wpnlweb.php';
  *
  * @since    1.0.0
  */
-function run_wpnlweb() {
+function run_wpnlweb()
+{
 
 	$plugin = new Wpnlweb();
 	$plugin->run();
-
 }
 run_wpnlweb();

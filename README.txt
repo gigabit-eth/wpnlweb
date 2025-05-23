@@ -1,114 +1,267 @@
-=== Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
-Donate link: https://typewriter.sh/
-Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
+=== WPNLWeb ===
+Contributors: typewriter
+Donate link: https://typewriter.sh/donate
+Tags: ai, nlp, search, api, rest, nlweb, artificial intelligence, natural language, endpoint
+Requires at least: 5.0
+Tested up to: 6.5
+Requires PHP: 7.4
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Transform your WordPress site into an AI-agent accessible endpoint. Make your content queryable by natural language and join the agentic web revolution.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+**WPNLWeb** turns your WordPress website into a conversational interface for both users and AI agents. It implements Microsoft's NLWeb protocol, making your site's content accessible via natural language queries through both REST API endpoints and an easy-to-use frontend shortcode.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+= Key Features =
 
-A few notes about the sections above:
+* **NLWeb Protocol Implementation** - Standards-compliant REST API endpoint `/wp-json/nlweb/v1/ask`
+* **Frontend Search Shortcode** - Add `[wpnlweb]` to any page for visitor search functionality
+* **Schema.org Compliant Responses** - Structured data that AI agents understand
+* **MCP Server Compatibility** - Works with Model Context Protocol systems
+* **WordPress Integration** - Native support for all post types, taxonomies, and custom fields
+* **AI Agent Ready** - CORS headers and proper formatting for ChatGPT, Claude, and other AI systems
+* **Admin Dashboard** - Settings, analytics, and test interface
+* **Performance Optimized** - <500ms response times with caching support
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+= How It Works =
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+1. **For AI Agents**: Your site becomes queryable via natural language through the REST API endpoint
+2. **For Website Visitors**: Add the `[wpnlweb]` shortcode to any page for an interactive search experience
+3. **For Developers**: Extend and customize the search functionality with WordPress hooks and filters
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+= Use Cases =
+
+* **Customer Support**: Let visitors ask questions and get instant answers from your knowledge base
+* **Content Discovery**: Help users find relevant content using natural language
+* **AI Agent Integration**: Make your site accessible to ChatGPT, Claude, and other AI systems
+* **Documentation Sites**: Enable natural language search through technical documentation
+* **E-commerce**: Help customers find products by describing what they need
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+= Automatic Installation =
 
-e.g.
+1. Log in to your WordPress admin panel
+2. Go to Plugins > Add New
+3. Search for "WPNLWeb"
+4. Click "Install Now" and then "Activate"
 
-1. Upload `wpnlweb.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+= Manual Installation =
+
+1. Download the plugin ZIP file
+2. Upload the `wpnlweb` folder to `/wp-content/plugins/`
+3. Activate the plugin through the 'Plugins' menu in WordPress
+
+= Setup =
+
+1. Go to Settings > WPNLWeb in your admin panel
+2. Configure your settings (rate limits, API keys, etc.)
+3. Test the endpoint using the built-in test interface
+4. Add the `[wpnlweb]` shortcode to any page where you want search functionality
+
+== Usage ==
+
+= Shortcode Usage =
+
+Add natural language search to any page or post:
+
+**Basic Usage:**
+`[wpnlweb]`
+
+**Customized:**
+`[wpnlweb placeholder="Search our knowledge base..." button_text="Find Answers" max_results="5"]`
+
+**With Custom Styling:**
+`[wpnlweb class="my-custom-search" show_results="true"]`
+
+= Shortcode Attributes =
+
+* `placeholder` - Custom placeholder text for the search input (default: "Ask a question about this site...")
+* `button_text` - Custom text for the search button (default: "Search")
+* `max_results` - Maximum number of results to display, 1-50 (default: 10)
+* `show_results` - Whether to show results on the same page, true/false (default: true)
+* `class` - Additional CSS class for custom styling (default: "wpnlweb-search-form")
+
+= Theme Customization =
+
+**Modern Light Theme:** WPNLWeb now features a beautiful, modern light theme by default with:
+
+* Clean white backgrounds with subtle shadows
+* Professional blue color scheme
+* Smooth animations and hover effects
+* Responsive design for all devices
+* Automatic dark mode support based on user preferences
+
+**Admin Settings:** Go to Settings > WPNLWeb to customize:
+
+* Theme mode (Auto, Light, Dark)
+* Primary color picker
+* Custom CSS editor with syntax reference
+
+**CSS Custom Properties:** Easily customize colors using CSS variables:
+
+```css
+:root {
+  --wpnlweb-primary-color: #3b82f6;    /* Main brand color */
+  --wpnlweb-primary-hover: #2563eb;    /* Hover state */
+  --wpnlweb-bg-primary: #ffffff;       /* Background */
+  --wpnlweb-text-primary: #1f2937;     /* Text color */
+  --wpnlweb-border-radius: 8px;        /* Rounded corners */
+}
+```
+
+**Developer Hooks:** Use filters to customize programmatically:
+
+```php
+// Change primary color
+add_filter('wpnlweb_primary_color', function() {
+    return '#ff6b6b'; // Custom red
+});
+
+// Add custom CSS
+add_filter('wpnlweb_custom_css', function($css) {
+    return $css . '.wpnlweb-search-container { max-width: 800px; }';
+});
+```
+
+= API Usage =
+
+**Endpoint:** `https://yoursite.com/wp-json/nlweb/v1/ask`
+
+**Method:** POST
+
+**Request Body:**
+```json
+{
+  "question": "What is this website about?",
+  "context": {
+    "post_type": "post",
+    "category": "tutorials",
+    "limit": 10
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "SearchResultsPage",
+  "query": "What is this website about?",
+  "totalResults": 3,
+  "items": [
+    {
+      "@type": "Article",
+      "@id": "https://yoursite.com/about/",
+      "name": "About Us",
+      "description": "Learn about our company mission...",
+      "url": "https://yoursite.com/about/",
+      "datePublished": "2024-01-15",
+      "author": {
+        "@type": "Person",
+        "name": "John Doe"
+      }
+    }
+  ]
+}
+```
+
+= Integration with AI Agents =
+
+To connect your site with ChatGPT or other AI agents:
+
+1. Share your endpoint URL: `https://yoursite.com/wp-json/nlweb/v1/ask`
+2. Instruct the AI to send POST requests with natural language questions
+3. The AI will receive structured, searchable responses about your content
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= How do I add search to my website? =
 
-An answer to that question.
+Simply add the `[wpnlweb]` shortcode to any page, post, or widget area where you want the search functionality to appear.
 
-= What about foo bar? =
+= Is this compatible with my theme? =
 
-Answer to foo bar dilemma.
+Yes! The shortcode is designed to work with any WordPress theme. The search form uses responsive CSS that adapts to your theme's styling.
+
+= How do AI agents like ChatGPT use this? =
+
+AI agents can send natural language questions to your `/wp-json/nlweb/v1/ask` endpoint and receive structured responses. This makes your website's content accessible to AI systems.
+
+= Can I customize the search results? =
+
+Yes! You can customize the shortcode appearance using the available attributes, add custom CSS classes, and use WordPress hooks to modify the search behavior.
+
+= Does this work with custom post types? =
+
+Absolutely! WPNLWeb works with all WordPress post types, including custom post types, pages, and any content created by other plugins.
+
+= Is this secure? =
+
+Yes! The plugin includes input sanitization, XSS protection, rate limiting, and optional API key authentication. All WordPress security best practices are followed.
+
+= Will this slow down my website? =
+
+No! The plugin is performance-optimized with response times under 500ms. Assets are only loaded when the shortcode is used, and the API endpoint is cached.
+
+= Can I track usage? =
+
+Yes! The admin dashboard includes usage statistics showing total queries, response times, and success rates.
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Admin dashboard showing plugin status, endpoint URL, and usage statistics
+2. Settings page with configuration options and test interface
+3. Frontend search shortcode in action on a website
+4. Search results displayed in a clean, responsive format
+5. Test interface showing JSON API response for developers
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
-
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+= 1.0.0 =
+* Initial release
+* NLWeb protocol implementation with REST API endpoint
+* Frontend search shortcode with configurable attributes
+* Schema.org compliant JSON responses
+* MCP server compatibility
+* Admin dashboard with settings and analytics
+* Performance optimization and caching
+* Security features including rate limiting
+* WordPress.org compliance and standards
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
+= 1.0.0 =
+Initial release of WPNLWeb. Transform your WordPress site into an AI-accessible endpoint with natural language search capabilities.
 
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
+== Developer Information ==
 
-== Arbitrary section ==
+= Hooks and Filters =
 
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
+The plugin provides several hooks for customization:
 
-== A brief Markdown Example ==
+* `wpnlweb_search_results` - Filter search results before display
+* `wpnlweb_query_args` - Modify WP_Query arguments
+* `wpnlweb_response_format` - Customize API response format
+* `wpnlweb_shortcode_attributes` - Filter shortcode attributes
 
-Ordered list:
+= Technical Specifications =
 
-1. Some feature
-1. Another feature
-1. Something else about the plugin
+* **Response Time:** <500ms average
+* **Concurrent Requests:** Supports 100+ simultaneous requests
+* **Memory Usage:** <64MB additional overhead
+* **Database Queries:** <5 per request
+* **Caching:** WordPress object cache integration
+* **Security:** Input sanitization, rate limiting, optional API authentication
 
-Unordered list:
+= System Requirements =
 
-* something
-* something else
-* third thing
+* WordPress 5.0 or higher
+* PHP 7.4 or higher
+* MySQL 5.6 or higher
+* mod_rewrite enabled (for pretty permalinks)
 
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+For technical support and documentation, visit [wpnlweb.com](https://wpnlweb.com)

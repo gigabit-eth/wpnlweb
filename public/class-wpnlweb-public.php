@@ -290,6 +290,9 @@ class Wpnlweb_Public
 			'all'
 		);
 
+		// Add custom CSS if available
+		$this->add_custom_styles();
+
 		// Enqueue shortcode-specific JavaScript
 		wp_enqueue_script(
 			$this->plugin_name . '-shortcode',
@@ -300,6 +303,247 @@ class Wpnlweb_Public
 		);
 
 		$this->shortcode_assets_enqueued = true;
+	}
+
+	/**
+	 * Add custom CSS styles from options and filters
+	 *
+	 * @since    1.0.0
+	 */
+	private function add_custom_styles()
+	{
+		// Get custom CSS from WordPress options (if admin settings exist)
+		$custom_css = get_option('wpnlweb_custom_css', '');
+
+		// Allow themes and other plugins to modify custom CSS
+		$custom_css = apply_filters('wpnlweb_custom_css', $custom_css);
+
+		// If custom CSS exists, add it inline
+		if (!empty($custom_css)) {
+			wp_add_inline_style($this->plugin_name . '-shortcode', wp_strip_all_tags($custom_css));
+		}
+
+		// Add theme-specific CSS variables for easy customization
+		$theme_vars = $this->get_theme_css_variables();
+		if (!empty($theme_vars)) {
+			wp_add_inline_style($this->plugin_name . '-shortcode', $theme_vars);
+		}
+	}
+
+	/**
+	 * Generate CSS variables for theme integration
+	 *
+	 * @since    1.0.0
+	 * @return   string    CSS variables for theme integration
+	 */
+	private function get_theme_css_variables()
+	{
+		// Get settings from admin options
+		$primary_color = get_option('wpnlweb_primary_color', '#3b82f6');
+		$theme_mode = get_option('wpnlweb_theme_mode', 'auto');
+
+		// Allow themes to override these values via filters
+		$primary_color = apply_filters('wpnlweb_primary_color', $primary_color);
+		$secondary_color = apply_filters('wpnlweb_secondary_color', '#1f2937');
+		$background_color = apply_filters('wpnlweb_background_color', '#ffffff');
+		$text_color = apply_filters('wpnlweb_text_color', '#1f2937');
+		$border_radius = apply_filters('wpnlweb_border_radius', '8px');
+
+		// Generate hover and active colors based on primary color
+		$primary_hover = $this->adjust_color_brightness($primary_color, -20);
+		$primary_active = $this->adjust_color_brightness($primary_color, -40);
+
+		$css = ":root {
+			--wpnlweb-primary-color: {$primary_color};
+			--wpnlweb-primary-hover: {$primary_hover};
+			--wpnlweb-primary-active: {$primary_active};
+			--wpnlweb-secondary-color: {$secondary_color};
+			--wpnlweb-background-color: {$background_color};
+			--wpnlweb-text-color: {$text_color};
+			--wpnlweb-border-radius: {$border_radius};
+		}";
+
+		// Add forced theme mode if not auto
+		if ($theme_mode === 'light') {
+			// Force light mode by overriding dark mode styles with higher specificity
+			$css .= "
+			/* Force Light Mode Override */
+			.wpnlweb-search-container.wpnlweb-search-container {
+				background: #ffffff !important;
+				color: #1f2937 !important;
+				border-color: #e5e7eb !important;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-input.wpnlweb-search-input {
+				background: #ffffff !important;
+				border-color: #e5e7eb !important;
+				color: #1f2937 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-input:focus {
+				border-color: {$primary_color} !important;
+				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+				background: #ffffff !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-input::placeholder {
+				color: #9ca3af !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-button {
+				background: linear-gradient(135deg, {$primary_color}, {$primary_hover}) !important;
+				box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25) !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-button:hover {
+				background: linear-gradient(135deg, {$primary_hover}, {$primary_active}) !important;
+				box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35) !important;
+			}
+			.wpnlweb-search-container .wpnlweb-loading {
+				color: #6b7280 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-spinner {
+				border-color: #f3f4f6 !important;
+				border-top-color: {$primary_color} !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-results {
+				border-top-color: #f3f4f6 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-results-title {
+				color: #1f2937 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-item {
+				background: #ffffff !important;
+				border-color: #e5e7eb !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-item:hover {
+				box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+				border-color: #d1d5db !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-title a {
+				color: #1f2937 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-title a:hover {
+				color: {$primary_color} !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-excerpt {
+				color: #4b5563 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-meta {
+				color: #9ca3af !important;
+				border-top-color: #f3f4f6 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-no-results {
+				background: #f9fafb !important;
+				color: #6b7280 !important;
+				border-color: #e5e7eb !important;
+			}
+			.wpnlweb-search-container .wpnlweb-error {
+				background: #fef2f2 !important;
+				color: #dc2626 !important;
+				border-color: #fecaca !important;
+			}";
+		} elseif ($theme_mode === 'dark') {
+			// Force dark mode styles
+			$css .= "
+			/* Force Dark Mode Override */
+			.wpnlweb-search-container.wpnlweb-search-container {
+				background: #1f2937 !important;
+				color: #f3f4f6 !important;
+				border-color: #374151 !important;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-input.wpnlweb-search-input {
+				background: #374151 !important;
+				border-color: #4b5563 !important;
+				color: #f3f4f6 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-input:focus {
+				border-color: #60a5fa !important;
+				box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+				background: #374151 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-input::placeholder {
+				color: #9ca3af !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-button {
+				background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+				box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4) !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-button:hover {
+				background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+				box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5) !important;
+			}
+			.wpnlweb-search-container .wpnlweb-loading {
+				color: #d1d5db !important;
+			}
+			.wpnlweb-search-container .wpnlweb-spinner {
+				border-color: #4b5563 !important;
+				border-top-color: #60a5fa !important;
+			}
+			.wpnlweb-search-container .wpnlweb-search-results {
+				border-top-color: #374151 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-results-title {
+				color: #f3f4f6 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-item {
+				background: #374151 !important;
+				border-color: #4b5563 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-item:hover {
+				box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+				border-color: #6b7280 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-title a {
+				color: #f3f4f6 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-title a:hover {
+				color: #60a5fa !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-excerpt {
+				color: #d1d5db !important;
+			}
+			.wpnlweb-search-container .wpnlweb-result-meta {
+				color: #9ca3af !important;
+				border-top-color: #4b5563 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-no-results {
+				background: #374151 !important;
+				color: #d1d5db !important;
+				border-color: #4b5563 !important;
+			}
+			.wpnlweb-search-container .wpnlweb-error {
+				background: #7f1d1d !important;
+				color: #fca5a5 !important;
+				border-color: #991b1b !important;
+			}";
+		}
+
+		return $css;
+	}
+
+	/**
+	 * Adjust color brightness for hover/active states
+	 *
+	 * @since    1.0.0
+	 * @param    string    $hex_color    Hex color code
+	 * @param    int       $percent      Percentage to adjust (-100 to 100)
+	 * @return   string    Adjusted hex color
+	 */
+	private function adjust_color_brightness($hex_color, $percent)
+	{
+		// Remove # if present
+		$hex_color = ltrim($hex_color, '#');
+
+		// Convert to RGB
+		$r = hexdec(substr($hex_color, 0, 2));
+		$g = hexdec(substr($hex_color, 2, 2));
+		$b = hexdec(substr($hex_color, 4, 2));
+
+		// Adjust brightness
+		$r = max(0, min(255, $r + ($r * $percent / 100)));
+		$g = max(0, min(255, $g + ($g * $percent / 100)));
+		$b = max(0, min(255, $b + ($b * $percent / 100)));
+
+		// Convert back to hex
+		return sprintf('#%02x%02x%02x', $r, $g, $b);
 	}
 
 	/**

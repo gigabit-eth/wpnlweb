@@ -1,87 +1,165 @@
 /**
- * WPNLWeb Shortcode Styles
+ * WPNLWeb Shortcode Styles - Modern Light Theme
  * 
- * Styles for the [wpnlweb] shortcode search form and results
+ * Clean, modern light theme with professional appearance
+ * Fully responsive with dark mode support
+ * Easily customizable via CSS custom properties
  *
  * @package    Wpnlweb
  * @subpackage Wpnlweb/public/css
  * @since      1.0.0
  */
 
-/* Search Container */
+/* ====================
+   CSS CUSTOM PROPERTIES
+   ==================== */
+
+:root {
+  /* Primary colors - easily customizable */
+  --wpnlweb-primary-color: #3b82f6;
+  --wpnlweb-primary-hover: #2563eb;
+  --wpnlweb-primary-active: #1d4ed8;
+
+  /* Background colors */
+  --wpnlweb-bg-primary: #ffffff;
+  --wpnlweb-bg-secondary: #f9fafb;
+  --wpnlweb-bg-results: #ffffff;
+
+  /* Text colors */
+  --wpnlweb-text-primary: #1f2937;
+  --wpnlweb-text-secondary: #4b5563;
+  --wpnlweb-text-muted: #6b7280;
+  --wpnlweb-text-placeholder: #9ca3af;
+
+  /* Border colors */
+  --wpnlweb-border-primary: #e5e7eb;
+  --wpnlweb-border-secondary: #f3f4f6;
+  --wpnlweb-border-focus: var(--wpnlweb-primary-color);
+
+  /* Shadows */
+  --wpnlweb-shadow-sm: 0 2px 8px rgba(59, 130, 246, 0.25);
+  --wpnlweb-shadow-md: 0 4px 12px rgba(59, 130, 246, 0.35);
+  --wpnlweb-shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.1);
+  --wpnlweb-shadow-container: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  /* Spacing */
+  --wpnlweb-border-radius: 8px;
+  --wpnlweb-border-radius-lg: 12px;
+  --wpnlweb-spacing-sm: 12px;
+  --wpnlweb-spacing-md: 20px;
+  --wpnlweb-spacing-lg: 30px;
+}
+
+/* ====================
+   DEFAULT LIGHT THEME
+   ==================== */
+
+/* Search Container - Clean white with subtle shadow */
 .wpnlweb-search-container {
   max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: var(--wpnlweb-spacing-md) auto;
+  padding: var(--wpnlweb-spacing-lg);
+  background: var(--wpnlweb-bg-primary);
+  border-radius: var(--wpnlweb-border-radius-lg);
+  box-shadow: var(--wpnlweb-shadow-container);
+  border: 1px solid var(--wpnlweb-border-primary);
 }
 
 /* Search Form */
 .wpnlweb-search-form {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .wpnlweb-search-input-wrapper {
   display: flex;
-  gap: 10px;
+  gap: var(--wpnlweb-spacing-sm);
   align-items: center;
   flex-wrap: wrap;
 }
 
+/* Input Field - Modern design with focus states */
 .wpnlweb-search-input {
   flex: 1;
   min-width: 250px;
-  padding: 12px 16px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
+  padding: 14px 18px;
+  border: 2px solid var(--wpnlweb-border-primary);
+  border-radius: var(--wpnlweb-border-radius);
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  background: var(--wpnlweb-bg-primary);
+  color: var(--wpnlweb-text-primary);
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 .wpnlweb-search-input:focus {
   outline: none;
-  border-color: #0073aa;
-  box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+  border-color: var(--wpnlweb-border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: var(--wpnlweb-bg-primary);
 }
 
+.wpnlweb-search-input::placeholder {
+  color: var(--wpnlweb-text-placeholder);
+}
+
+/* Search Button - Modern blue with hover effects */
 .wpnlweb-search-button {
-  padding: 12px 24px;
-  background: #0073aa;
-  color: white;
+  padding: 14px 28px;
+  background: linear-gradient(
+    135deg,
+    var(--wpnlweb-primary-color),
+    var(--wpnlweb-primary-hover)
+  );
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--wpnlweb-border-radius);
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  box-shadow: var(--wpnlweb-shadow-sm);
 }
 
 .wpnlweb-search-button:hover {
-  background: #005a87;
+  background: linear-gradient(
+    135deg,
+    var(--wpnlweb-primary-hover),
+    var(--wpnlweb-primary-active)
+  );
+  transform: translateY(-1px);
+  box-shadow: var(--wpnlweb-shadow-md);
+}
+
+.wpnlweb-search-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
 }
 
 .wpnlweb-search-button:disabled {
-  background: #ccc;
+  background: #d1d5db;
+  color: #9ca3af;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* Loading State */
+/* Loading State - Elegant spinner */
 .wpnlweb-loading {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 15px;
-  color: #666;
+  gap: var(--wpnlweb-spacing-sm);
+  margin-top: 18px;
+  color: var(--wpnlweb-text-muted);
   font-style: italic;
+  font-size: 15px;
 }
 
 .wpnlweb-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #0073aa;
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--wpnlweb-border-secondary);
+  border-top: 3px solid var(--wpnlweb-primary-color);
   border-radius: 50%;
   animation: wpnlweb-spin 1s linear infinite;
 }
@@ -95,74 +173,83 @@
   }
 }
 
-/* Results Container */
+/* Results Container - Clean separation */
 .wpnlweb-search-results {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 2px solid #eee;
+  margin-top: var(--wpnlweb-spacing-lg);
+  padding-top: 25px;
+  border-top: 2px solid var(--wpnlweb-border-secondary);
 }
 
 .wpnlweb-results-title {
-  margin: 0 0 15px 0;
-  color: #333;
-  font-size: 18px;
-  font-weight: 600;
+  margin: 0 0 var(--wpnlweb-spacing-md) 0;
+  color: var(--wpnlweb-text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .wpnlweb-results-content {
   /* Container for dynamic results */
 }
 
-/* No Results */
+/* No Results - Friendly empty state */
 .wpnlweb-no-results {
-  padding: 20px;
+  padding: 24px;
   text-align: center;
-  color: #666;
+  color: var(--wpnlweb-text-muted);
   font-style: italic;
-  background: #f8f8f8;
-  border-radius: 6px;
+  background: var(--wpnlweb-bg-secondary);
+  border: 2px dashed var(--wpnlweb-border-primary);
+  border-radius: var(--wpnlweb-border-radius);
+  font-size: 15px;
 }
 
 /* Results List */
 .wpnlweb-results-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--wpnlweb-spacing-md);
 }
 
+/* Result Items - Card-like design */
 .wpnlweb-result-item {
-  padding: 20px;
-  background: white;
-  border: 1px solid #e1e1e1;
-  border-radius: 6px;
-  transition: box-shadow 0.3s ease;
+  padding: 24px;
+  background: var(--wpnlweb-bg-results);
+  border: 1px solid var(--wpnlweb-border-primary);
+  border-radius: var(--wpnlweb-border-radius);
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .wpnlweb-result-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--wpnlweb-shadow-lg);
+  border-color: #d1d5db;
+  transform: translateY(-2px);
 }
 
 .wpnlweb-result-title {
-  margin: 0 0 10px 0;
+  margin: 0 0 var(--wpnlweb-spacing-sm) 0;
   font-size: 18px;
   line-height: 1.4;
+  font-weight: 600;
 }
 
 .wpnlweb-result-title a {
-  color: #0073aa;
+  color: var(--wpnlweb-text-primary);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .wpnlweb-result-title a:hover {
-  color: #005a87;
-  text-decoration: underline;
+  color: var(--wpnlweb-primary-color);
+  text-decoration: none;
 }
 
 .wpnlweb-result-excerpt {
-  margin: 10px 0;
-  color: #666;
+  margin: var(--wpnlweb-spacing-sm) 0 16px 0;
+  color: var(--wpnlweb-text-secondary);
   line-height: 1.6;
+  font-size: 15px;
 }
 
 .wpnlweb-result-excerpt p {
@@ -171,10 +258,12 @@
 
 .wpnlweb-result-meta {
   display: flex;
-  gap: 15px;
-  margin-top: 12px;
+  gap: 16px;
+  margin-top: 16px;
   font-size: 14px;
-  color: #999;
+  color: var(--wpnlweb-text-placeholder);
+  border-top: 1px solid var(--wpnlweb-border-secondary);
+  padding-top: var(--wpnlweb-spacing-sm);
 }
 
 .wpnlweb-result-date,
@@ -182,21 +271,40 @@
   white-space: nowrap;
 }
 
-/* Error Messages */
-.wpnlweb-error {
-  padding: 15px;
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  border-radius: 6px;
-  margin-top: 15px;
+.wpnlweb-result-date::before {
+  content: "📅 ";
+  margin-right: 4px;
 }
 
-/* Responsive Design */
+.wpnlweb-result-author::before {
+  content: "👤 ";
+  margin-right: 4px;
+}
+
+/* Error Messages - Clear error styling */
+.wpnlweb-error {
+  padding: 16px var(--wpnlweb-spacing-md);
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: var(--wpnlweb-border-radius);
+  margin-top: 15px;
+  font-weight: 500;
+}
+
+.wpnlweb-error::before {
+  content: "⚠️ ";
+  margin-right: 8px;
+}
+
+/* ====================
+   RESPONSIVE DESIGN
+   ==================== */
+
 @media (max-width: 600px) {
   .wpnlweb-search-container {
-    margin: 10px;
-    padding: 15px;
+    margin: 15px;
+    padding: 20px;
   }
 
   .wpnlweb-search-input-wrapper {
@@ -206,7 +314,7 @@
 
   .wpnlweb-search-input {
     min-width: unset;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
 
   .wpnlweb-search-button {
@@ -215,57 +323,157 @@
 
   .wpnlweb-result-meta {
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
   .wpnlweb-search-container {
-    margin: 5px;
-    padding: 10px;
+    margin: 10px;
+    padding: 16px;
   }
 
   .wpnlweb-result-item {
-    padding: 15px;
+    padding: 18px;
   }
 
   .wpnlweb-result-title {
-    font-size: 16px;
+    font-size: 17px;
+  }
+
+  .wpnlweb-results-title {
+    font-size: 18px;
   }
 }
 
-/* Dark Theme Support */
+/* ====================
+   DARK MODE SUPPORT
+   ==================== */
+
 @media (prefers-color-scheme: dark) {
   .wpnlweb-search-container {
-    background: #2c2c2c;
-    color: #e0e0e0;
+    background: #1f2937;
+    color: #f3f4f6;
+    border-color: #374151;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   }
 
   .wpnlweb-search-input {
-    background: #3c3c3c;
-    border-color: #555;
-    color: #e0e0e0;
+    background: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
   }
 
   .wpnlweb-search-input:focus {
-    border-color: #4a9eff;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+    background: #374151;
+  }
+
+  .wpnlweb-search-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .wpnlweb-search-button {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  }
+
+  .wpnlweb-search-button:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+  }
+
+  .wpnlweb-loading {
+    color: #d1d5db;
+  }
+
+  .wpnlweb-spinner {
+    border-color: #4b5563;
+    border-top-color: #60a5fa;
+  }
+
+  .wpnlweb-search-results {
+    border-top-color: #374151;
+  }
+
+  .wpnlweb-results-title {
+    color: #f3f4f6;
   }
 
   .wpnlweb-result-item {
-    background: #3c3c3c;
-    border-color: #555;
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .wpnlweb-result-item:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border-color: #6b7280;
   }
 
   .wpnlweb-result-title a {
-    color: #4a9eff;
+    color: #f3f4f6;
   }
 
   .wpnlweb-result-title a:hover {
-    color: #6bb6ff;
+    color: #60a5fa;
+  }
+
+  .wpnlweb-result-excerpt {
+    color: #d1d5db;
+  }
+
+  .wpnlweb-result-meta {
+    color: #9ca3af;
+    border-top-color: #4b5563;
   }
 
   .wpnlweb-no-results {
-    background: #3c3c3c;
-    color: #ccc;
+    background: #374151;
+    color: #d1d5db;
+    border-color: #4b5563;
+  }
+
+  .wpnlweb-error {
+    background: #7f1d1d;
+    color: #fca5a5;
+    border-color: #991b1b;
+  }
+}
+
+/* ====================
+   ACCESSIBILITY
+   ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .wpnlweb-search-input,
+  .wpnlweb-search-button,
+  .wpnlweb-result-item,
+  .wpnlweb-result-title a {
+    transition: none;
+  }
+
+  .wpnlweb-spinner {
+    animation: none;
+  }
+
+  .wpnlweb-search-button:hover,
+  .wpnlweb-result-item:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .wpnlweb-search-input {
+    border-width: 3px;
+  }
+
+  .wpnlweb-search-button {
+    border: 2px solid currentColor;
+  }
+
+  .wpnlweb-result-item {
+    border-width: 2px;
   }
 }
