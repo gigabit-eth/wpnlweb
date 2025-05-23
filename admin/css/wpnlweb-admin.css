@@ -1,4 +1,644 @@
 /**
- * All of the CSS for your admin-specific functionality should be
- * included in this file.
+ * WPNLWeb Admin Styles - Modern Design
+ * 
+ * Professional tabbed interface matching the mockups
+ * with beautiful color picker, live preview, and modern styling
+ *
+ * @package    Wpnlweb
+ * @subpackage Wpnlweb/admin/css
+ * @since      1.0.0
  */
+
+/* ====================
+   ADMIN WRAPPER
+   ==================== */
+
+.wpnlweb-admin-wrapper {
+  max-width: 1200px;
+  margin: 20px 0;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* ====================
+   HEADER SECTION
+   ==================== */
+
+.wpnlweb-admin-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 30px 40px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.wpnlweb-admin-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wpnlweb-admin-icon {
+  font-size: 32px;
+}
+
+.wpnlweb-admin-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* ====================
+   CONTAINER LAYOUT
+   ==================== */
+
+.wpnlweb-admin-container {
+  display: flex;
+  min-height: 600px;
+}
+
+/* ====================
+   SIDEBAR NAVIGATION
+   ==================== */
+
+.wpnlweb-admin-sidebar {
+  width: 280px;
+  background: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+  padding: 30px 0;
+}
+
+.wpnlweb-sidebar-header {
+  padding: 0 30px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.wpnlweb-sidebar-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.wpnlweb-sidebar-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.wpnlweb-sidebar-nav {
+  padding: 0 20px;
+}
+
+.wpnlweb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  text-decoration: none;
+  color: #6b7280;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.wpnlweb-nav-item:hover {
+  background: #ffffff;
+  color: #374151;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wpnlweb-nav-item.active {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.wpnlweb-nav-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+/* ====================
+   MAIN CONTENT AREA
+   ==================== */
+
+.wpnlweb-admin-main {
+  flex: 1;
+  padding: 40px;
+  background: #ffffff;
+}
+
+/* ====================
+   TAB CONTENT
+   ==================== */
+
+.wpnlweb-tab-content {
+  display: none;
+}
+
+.wpnlweb-tab-content.active {
+  display: block;
+}
+
+.wpnlweb-tab-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.wpnlweb-tab-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wpnlweb-tab-icon {
+  font-size: 24px;
+}
+
+.wpnlweb-tab-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* ====================
+   SETTING GROUPS
+   ==================== */
+
+.wpnlweb-setting-group {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.wpnlweb-setting-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.wpnlweb-setting-description {
+  margin: 0 0 16px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ====================
+   FORM ELEMENTS
+   ==================== */
+
+.wpnlweb-select {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 14px;
+  color: #1f2937;
+  transition: border-color 0.2s ease;
+}
+
+.wpnlweb-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ====================
+   COLOR PICKER
+   ==================== */
+
+.wpnlweb-color-picker-wrapper {
+  margin-bottom: 20px;
+}
+
+.wpnlweb-color-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.wpnlweb-color-picker {
+  width: 60px;
+  height: 60px;
+  border: 3px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wpnlweb-color-picker:hover {
+  border-color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.wpnlweb-color-text {
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 14px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  color: #1f2937;
+  width: 120px;
+  transition: border-color 0.2s ease;
+}
+
+.wpnlweb-color-text:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ====================
+   PRESET COLORS
+   ==================== */
+
+.wpnlweb-preset-colors {
+  margin-top: 20px;
+}
+
+.wpnlweb-preset-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.wpnlweb-preset-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wpnlweb-preset-color {
+  width: 40px;
+  height: 40px;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.wpnlweb-preset-color:hover {
+  transform: scale(1.1);
+  border-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.wpnlweb-preset-color.active {
+  border-color: #1f2937;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.wpnlweb-preset-color.active::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ====================
+   CSS EDITOR
+   ==================== */
+
+.wpnlweb-css-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.wpnlweb-css-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.wpnlweb-css-editor {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1f2937;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.wpnlweb-css-editor:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.wpnlweb-css-example {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.wpnlweb-css-example p {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.wpnlweb-code-block {
+  margin: 0;
+  padding: 12px;
+  background: #1f2937;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.wpnlweb-code-block code {
+  color: #e5e7eb;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* ====================
+   CSS REFERENCE
+   ==================== */
+
+.wpnlweb-css-reference {
+  margin-top: 24px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.wpnlweb-css-reference h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.wpnlweb-css-reference p {
+  margin: 0 0 16px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.wpnlweb-css-properties {
+  display: grid;
+  gap: 12px;
+}
+
+.wpnlweb-css-property {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 2fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.wpnlweb-css-var {
+  background: #3b82f6;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.wpnlweb-css-desc {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ====================
+   LIVE PREVIEW
+   ==================== */
+
+.wpnlweb-shortcode-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+.wpnlweb-shortcode-label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.wpnlweb-shortcode-code {
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 14px;
+}
+
+.wpnlweb-preview-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.wpnlweb-preview-container {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  background: #f9fafb;
+  overflow: hidden;
+}
+
+.wpnlweb-preview-header {
+  padding: 12px 20px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.wpnlweb-live-preview {
+  padding: 30px;
+  background: #ffffff;
+}
+
+.wpnlweb-preview-placeholder {
+  text-align: center;
+}
+
+.wpnlweb-preview-search {
+  display: flex;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto 20px;
+}
+
+.wpnlweb-preview-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.wpnlweb-preview-button {
+  padding: 12px 16px;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.wpnlweb-preview-button:hover {
+  background: #2563eb;
+}
+
+.wpnlweb-preview-text {
+  margin: 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* ====================
+   BUTTONS
+   ==================== */
+
+.wpnlweb-button-primary {
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wpnlweb-button-primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.wpnlweb-button-secondary {
+  background: #ffffff;
+  color: #374151;
+  border: 2px solid #d1d5db;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wpnlweb-button-secondary:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+/* ====================
+   FORM ACTIONS
+   ==================== */
+
+.wpnlweb-form-actions {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  text-align: right;
+}
+
+/* ====================
+   RESPONSIVE DESIGN
+   ==================== */
+
+@media (max-width: 1024px) {
+  .wpnlweb-admin-container {
+    flex-direction: column;
+  }
+
+  .wpnlweb-admin-sidebar {
+    width: 100%;
+    padding: 20px 0;
+  }
+
+  .wpnlweb-sidebar-nav {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+    overflow-x: auto;
+  }
+
+  .wpnlweb-nav-item {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .wpnlweb-admin-header {
+    padding: 20px;
+  }
+
+  .wpnlweb-admin-main {
+    padding: 20px;
+  }
+
+  .wpnlweb-css-property {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .wpnlweb-color-input-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
