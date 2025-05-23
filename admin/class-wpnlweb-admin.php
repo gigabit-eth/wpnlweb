@@ -855,6 +855,81 @@ class Wpnlweb_Admin
 				font-size: 14px;
 			}
 
+			/* Styles for actual search results from the public handler */
+			.wpnlweb-preview-results-content .wpnlweb-results-list {
+				margin: 0;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-item {
+				background: #ffffff;
+				border: 1px solid #e5e7eb;
+				border-radius: 6px;
+				padding: 16px;
+				margin-bottom: 12px;
+				transition: all 0.2s ease;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-item:last-child {
+				margin-bottom: 0;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-item:hover {
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+				border-color: #d1d5db;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-title {
+				margin: 0 0 8px 0;
+				font-size: 16px;
+				font-weight: 600;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-title a {
+				color: #1f2937;
+				text-decoration: none;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-title a:hover {
+				color: var(--wpnlweb-primary-color);
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-excerpt {
+				margin: 0 0 8px 0;
+				color: #4b5563;
+				font-size: 14px;
+				line-height: 1.5;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-excerpt p {
+				margin: 0;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-result-meta {
+				font-size: 12px;
+				color: #9ca3af;
+				border-top: 1px solid #f3f4f6;
+				padding-top: 8px;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-no-results {
+				text-align: center;
+				padding: 40px 20px;
+				color: #6b7280;
+				font-style: italic;
+				background: #f9fafb;
+				border: 1px solid #e5e7eb;
+				border-radius: 6px;
+			}
+
+			.wpnlweb-preview-results-content .wpnlweb-error {
+				background: #fef2f2;
+				color: #dc2626;
+				border: 1px solid #fecaca;
+				border-radius: 6px;
+				padding: 12px 16px;
+				text-align: center;
+			}
+
 			/* Apply custom CSS if provided */
 			<?php if (!empty($custom_css)): ?><?php echo wp_strip_all_tags($custom_css); ?><?php endif; ?>
 		</style>
@@ -923,21 +998,13 @@ class Wpnlweb_Admin
 							$button.prop('disabled', false);
 
 							if (response.success && response.data) {
-								const results = response.data;
+								// The response.data contains {html: "...", count: N}
+								const responseData = response.data;
 								let html = '';
 
-								if (results.length > 0) {
-									results.forEach(function(result) {
-										html += '<div class="wpnlweb-preview-result-item">';
-										html += '<h4 class="wpnlweb-preview-result-title">';
-										html += '<a href="' + result.url + '" target="_blank">' + result.title + '</a>';
-										html += '</h4>';
-										html += '<p class="wpnlweb-preview-result-excerpt">' + result.excerpt + '</p>';
-										html += '<div class="wpnlweb-preview-result-meta">';
-										html += 'Published: ' + result.date + ' | Author: ' + result.author;
-										html += '</div>';
-										html += '</div>';
-									});
+								if (responseData.html) {
+									// The HTML is already formatted by the server
+									html = responseData.html;
 								} else {
 									html = '<div class="wpnlweb-preview-no-results">No results found for your search. Try different keywords.</div>';
 								}

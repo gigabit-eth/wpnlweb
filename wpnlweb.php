@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       WPNLWeb
  * Plugin URI:        https://wpnlweb.com
- * Description:       Turn your Wordpress site into a natural language interface for users, and AI agents using Microsoft's NLWeb Protocol. 
+ * Description:       Turn your WordPress site into a natural language interface for users, and AI agents using Microsoft's NLWeb Protocol.
  * Version:           1.0.0
  * Author:            TypeWriter
  * Author URI:        https://typewriter.sh/

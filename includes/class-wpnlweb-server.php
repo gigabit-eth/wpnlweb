@@ -149,15 +149,48 @@ class Wpnlweb_Server
         // Enhance with context if provided
         if (!empty($context['post_type'])) {
             $query_args['post_type'] = sanitize_text_field($context['post_type']);
+        } else {
+            // Search all public post types by default
+            $query_args['post_type'] = array('post', 'page');
         }
 
         if (!empty($context['category'])) {
             $query_args['category_name'] = sanitize_text_field($context['category']);
         }
 
+        // First attempt: Full keyword search
         $query = new WP_Query($query_args);
+        $posts = $query->posts;
 
-        return $query->posts;
+        // If no results found, try fallback searches
+        if (empty($posts) && !empty($keywords)) {
+            // Fallback 1: Try with individual keywords
+            foreach ($keywords as $keyword) {
+                $fallback_args = $query_args;
+                $fallback_args['s'] = $keyword;
+                $fallback_query = new WP_Query($fallback_args);
+                if ($fallback_query->have_posts()) {
+                    $posts = $fallback_query->posts;
+                    break;
+                }
+            }
+        }
+
+        // If still no results, try a more general search
+        if (empty($posts)) {
+            // Fallback 2: Get latest posts if no search matches
+            $latest_args = array(
+                'post_status' => 'publish',
+                'posts_per_page' => min(5, isset($context['limit']) ? intval($context['limit']) : 5),
+                'post_type' => array('post', 'page'),
+                'orderby' => 'date',
+                'order' => 'DESC'
+            );
+            $latest_query = new WP_Query($latest_args);
+            $posts = $latest_query->posts;
+        }
+
+        return $posts;
     }
 
     /**

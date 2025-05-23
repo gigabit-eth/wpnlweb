@@ -1,6 +1,6 @@
 === WPNLWeb ===
 Contributors: typewriter
-Donate link: https://typewriter.sh/donate
+Donate link: https://wpnlweb.com/donate
 Tags: ai, nlp, search, api, rest, nlweb, artificial intelligence, natural language, endpoint
 Requires at least: 5.0
 Tested up to: 6.5
