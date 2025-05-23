@@ -1,0 +1,78 @@
+=== WPNLWeb Installation Instructions ===
+
+= Automatic Installation =
+
+1. Log in to your WordPress admin panel
+2. Go to Plugins > Add New
+3. Search for "WPNLWeb"
+4. Click "Install Now" and then "Activate"
+
+= Manual Installation =
+
+1. Download the plugin ZIP file from WordPress.org
+2. Log in to your WordPress admin panel
+3. Go to Plugins > Add New > Upload Plugin
+4. Choose the downloaded ZIP file and click "Install Now"
+5. Click "Activate Plugin"
+
+= Alternative Manual Installation =
+
+1. Download and extract the plugin ZIP file
+2. Upload the `wpnlweb` folder to `/wp-content/plugins/` via FTP
+3. Activate the plugin through the 'Plugins' menu in WordPress
+
+= Initial Setup =
+
+1. Go to Settings > WPNLWeb in your admin panel
+2. Configure your theme settings (optional)
+3. Add custom CSS if desired (optional)
+4. Test the endpoint using the Live Preview tab
+5. Add the `[wpnlweb]` shortcode to any page where you want search functionality
+
+= System Requirements =
+
+- WordPress 5.0 or higher
+- PHP 7.4 or higher
+- MySQL 5.6 or higher
+- mod_rewrite enabled (for pretty permalinks)
+
+= First Steps After Installation =
+
+1. **Test the REST API Endpoint:**
+   - Go to: `https://yoursite.com/wp-json/nlweb/v1/ask`
+   - Send a POST request with: `{"question": "test"}`
+
+2. **Add Search to Your Site:**
+   - Edit any page or post
+   - Add the shortcode: `[wpnlweb]`
+   - Save and view the page
+
+3. **Customize Appearance:**
+   - Go to Settings > WPNLWeb > Theme tab
+   - Choose your preferred theme mode
+   - Select a primary color
+   - Add custom CSS if needed
+
+4. **For AI Agent Integration:**
+   - Share your endpoint URL: `https://yoursite.com/wp-json/nlweb/v1/ask`
+   - AI agents can send POST requests with natural language questions
+   - Responses follow Schema.org standards for structured data
+
+= Troubleshooting =
+
+**No search results:**
+- Ensure you have published posts or pages
+- Check that WordPress search is working normally
+- Verify pretty permalinks are enabled
+
+**Styling issues:**
+- Check your theme's CSS for conflicts
+- Use the admin settings to override styles
+- Add custom CSS to fine-tune appearance
+
+**API not working:**
+- Check permalink structure is set to "Post name" or similar
+- Verify REST API is enabled on your site
+- Test with a REST API client like Postman
+
+For additional support, visit: https://wpnlweb.com/support 

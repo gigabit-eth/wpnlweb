@@ -1,0 +1,265 @@
+# Copyright (C) 2025 TypeWriter
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: WPNLWeb 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpnlweb\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-05-23T22:19:33+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wpnlweb\n"
+
+#. Plugin Name of the plugin
+#: wpnlweb.php
+#: admin/class-wpnlweb-admin.php:80
+msgid "WPNLWeb"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wpnlweb.php
+msgid "https://wpnlweb.com"
+msgstr ""
+
+#. Description of the plugin
+#: wpnlweb.php
+msgid "Turn your WordPress site into a natural language interface for users, and AI agents using Microsoft's NLWeb Protocol."
+msgstr ""
+
+#. Author of the plugin
+#: wpnlweb.php
+msgid "TypeWriter"
+msgstr ""
+
+#. Author URI of the plugin
+#: wpnlweb.php
+msgid "https://typewriter.sh/"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:79
+msgid "WPNLWeb Settings"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:349
+msgid "Customize the appearance of your WPNLWeb search forms and interface."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:357
+#: admin/class-wpnlweb-admin.php:1108
+msgid "Settings"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:358
+msgid "Configure your preferences"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:364
+msgid "Theme"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:368
+#: admin/class-wpnlweb-admin.php:456
+#: admin/class-wpnlweb-admin.php:464
+msgid "Custom CSS"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:372
+#: admin/class-wpnlweb-admin.php:533
+#: admin/class-wpnlweb-admin.php:556
+msgid "Live Preview"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:387
+msgid "Theme Customization"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:389
+msgid "Customize the appearance of your WPNLWeb search forms."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:394
+msgid "Theme Mode"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:397
+msgid "Choose the theme mode for the search interface."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:401
+msgid "Auto (Follow System)"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:404
+msgid "Light Mode"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:407
+msgid "Dark Mode"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:414
+msgid "Primary Color"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:417
+msgid "Choose the primary color for buttons and focus states."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:436
+msgid "Preset Colors"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:458
+msgid "Add custom CSS to further customize the appearance. This CSS will be applied to all WPNLWeb shortcodes."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:468
+msgid "Copy Example"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:471
+msgid "Reset"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:480
+msgid "Add your custom CSS here..."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:483
+msgid "Add custom CSS to override default styles. Example:"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:489
+msgid "CSS Custom Properties Reference"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:490
+msgid "You can use these CSS custom properties in your custom CSS to maintain consistency:"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:495
+msgid "Main brand color"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:497
+msgid "Hover state color"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:501
+msgid "Main background color"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:503
+msgid "Secondary background"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:507
+msgid "Main text color"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:509
+msgid "Secondary text color"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:513
+msgid "Border radius"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:515
+msgid "Small spacing (12px)"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:519
+msgid "Medium spacing (20px)"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:521
+msgid "Large spacing (30px)"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:535
+msgid "Test your WPNLWeb search interface with live functionality. This preview uses the actual API endpoint."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:540
+msgid "Shortcode Usage"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:544
+msgid "Shortcode:"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:549
+msgid "Live Functional Preview"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:551
+msgid "This is a fully functional preview that connects to your site's content via the NLWeb API endpoint. Try searching for content on your site!"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:558
+msgid "Refresh Preview"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:564
+msgid "Loading preview..."
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:570
+msgid "Preview Information"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:572
+msgid "This preview uses your current theme and color settings"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:573
+msgid "Search results come from your actual site content"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:574
+msgid "Changes to settings above will be reflected when you refresh the preview"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:584
+msgid "Save Settings"
+msgstr ""
+
+#: admin/class-wpnlweb-admin.php:604
+#: public/class-wpnlweb-public.php:167
+msgid "Security check failed"
+msgstr ""
+
+#: public/class-wpnlweb-public.php:96
+msgid "Ask a question about this site..."
+msgstr ""
+
+#: public/class-wpnlweb-public.php:97
+msgid "Search"
+msgstr ""
+
+#: public/class-wpnlweb-public.php:128
+msgid "Searching..."
+msgstr ""
+
+#: public/class-wpnlweb-public.php:135
+msgid "Search Results"
+msgstr ""
+
+#: public/class-wpnlweb-public.php:175
+msgid "Please enter a question"
+msgstr ""
+
+#: public/class-wpnlweb-public.php:220
+msgid "Search functionality not available"
+msgstr ""
+
+#. translators: %s is the search query entered by the user
+#: public/class-wpnlweb-public.php:238
+#, php-format
+msgid "No results found for \"%s\""
+msgstr ""

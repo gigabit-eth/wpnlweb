@@ -234,6 +234,7 @@ class Wpnlweb_Public
 
 		if (empty($posts)) {
 			return '<p class="wpnlweb-no-results">' .
+				/* translators: %s is the search query entered by the user */
 				sprintf(__('No results found for "%s"', 'wpnlweb'), esc_html($question)) .
 				'</p>';
 		}
