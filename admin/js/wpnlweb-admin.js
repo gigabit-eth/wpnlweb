@@ -171,7 +171,7 @@
       if (confirm("Are you sure you want to clear all custom CSS?")) {
         $cssEditor.val("");
         $cssEditor.focus();
-        showTemporaryMessage($resetButton, "�� Reset!", 2000);
+        showTemporaryMessage($resetButton, "✅ Reset!", 2000);
       }
     });
 
@@ -208,9 +208,19 @@
   function initLivePreview() {
     const $livePreview = $("#wpnlweb-live-preview");
     const $themeMode = $("#wpnlweb_theme_mode");
+    const $refreshButton = $("#wpnlweb-refresh-preview");
+    let previewLoaded = false;
 
     // Update preview when theme mode changes
     $themeMode.on("change", function () {
+      if (previewLoaded) {
+        updateLivePreview();
+      }
+    });
+
+    // Handle refresh button click
+    $refreshButton.on("click", function (e) {
+      e.preventDefault();
       updateLivePreview();
     });
 
@@ -228,30 +238,72 @@
 
       // Show loading state
       $livePreview.html(
-        '<div class="wpnlweb-loading">🔄 Updating preview...</div>'
+        '<div class="wpnlweb-preview-loading"><span class="wpnlweb-spinner"></span> Loading live preview...</div>'
       );
+
+      // Disable refresh button during load
+      $refreshButton.prop("disabled", true);
 
       $.post(wpnlweb_admin.ajax_url, formData)
         .done(function (response) {
-          if (response.success) {
+          if (response.success && response.data.html) {
             $livePreview.html(response.data.html);
+            previewLoaded = true;
+
+            // Show success message briefly
+            showTemporaryMessage($refreshButton, "✅ Updated!", 2000);
           } else {
             $livePreview.html(
-              '<div class="wpnlweb-error">❌ Preview update failed</div>'
+              '<div class="wpnlweb-preview-error">❌ Preview failed to load. Please check your settings and try again.</div>'
             );
           }
         })
-        .fail(function () {
+        .fail(function (xhr, status, error) {
+          console.error("Preview AJAX Error:", status, error);
           $livePreview.html(
-            '<div class="wpnlweb-error">❌ Connection error</div>'
+            '<div class="wpnlweb-preview-error">❌ Connection error. Please check your network and try again.</div>'
           );
+        })
+        .always(function () {
+          // Re-enable refresh button
+          $refreshButton.prop("disabled", false);
         });
     }
 
-    // Initial preview load when switching to live preview tab
+    // Load preview when switching to live preview tab (first time only)
     $('.wpnlweb-nav-item[data-tab="live-preview"]').on("click", function () {
-      setTimeout(updateLivePreview, 100); // Small delay to ensure tab is visible
+      if (!previewLoaded) {
+        setTimeout(updateLivePreview, 100); // Small delay to ensure tab is visible
+      }
     });
+
+    // Auto-refresh when primary color changes (with debouncing)
+    let colorChangeTimeout;
+    $("#wpnlweb_primary_color, #wpnlweb_primary_color_text").on(
+      "change",
+      function () {
+        if (previewLoaded) {
+          clearTimeout(colorChangeTimeout);
+          colorChangeTimeout = setTimeout(function () {
+            updateLivePreview();
+          }, 1000); // Wait 1 second after last change
+        }
+      }
+    );
+
+    /**
+     * Show temporary message on button
+     */
+    function showTemporaryMessage($button, message, duration) {
+      const originalText = $button.html();
+      $button.html(message);
+      $button.prop("disabled", true);
+
+      setTimeout(function () {
+        $button.html(originalText);
+        $button.prop("disabled", false);
+      }, duration);
+    }
   }
 
   /**

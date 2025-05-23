@@ -532,7 +532,7 @@ class Wpnlweb_Admin
 										<span class="wpnlweb-tab-icon">👁️</span>
 										<?php _e('Live Preview', 'wpnlweb'); ?>
 									</h2>
-									<p><?php _e('Use the shortcode [wpnlweb] to see your customizations in action.', 'wpnlweb'); ?></p>
+									<p><?php _e('Test your WPNLWeb search interface with live functionality. This preview uses the actual API endpoint.', 'wpnlweb'); ?></p>
 								</div>
 
 								<div class="wpnlweb-setting-group">
@@ -546,19 +546,33 @@ class Wpnlweb_Admin
 									</div>
 
 									<div class="wpnlweb-preview-section">
-										<h3><?php _e('Preview', 'wpnlweb'); ?></h3>
+										<h3><?php _e('Live Functional Preview', 'wpnlweb'); ?></h3>
+										<p class="wpnlweb-preview-description">
+											<?php _e('This is a fully functional preview that connects to your site\'s content via the NLWeb API endpoint. Try searching for content on your site!', 'wpnlweb'); ?>
+										</p>
+
 										<div class="wpnlweb-preview-container">
-											<div class="wpnlweb-preview-header"><?php _e('Live Preview', 'wpnlweb'); ?></div>
+											<div class="wpnlweb-preview-header">
+												<?php _e('Live Preview', 'wpnlweb'); ?>
+												<button type="button" id="wpnlweb-refresh-preview" class="wpnlweb-button-secondary wpnlweb-refresh-btn">
+													🔄 <?php _e('Refresh Preview', 'wpnlweb'); ?>
+												</button>
+											</div>
 											<div id="wpnlweb-live-preview" class="wpnlweb-live-preview">
-												<!-- Live preview will be loaded here via AJAX -->
-												<div class="wpnlweb-preview-placeholder">
-													<div class="wpnlweb-preview-search">
-														<input type="text" placeholder="<?php esc_attr_e('Search...', 'wpnlweb'); ?>" class="wpnlweb-preview-input">
-														<button type="button" class="wpnlweb-preview-button">🔍</button>
-													</div>
-													<p class="wpnlweb-preview-text"><?php _e('Search results would appear here...', 'wpnlweb'); ?></p>
+												<div class="wpnlweb-preview-loading">
+													<span class="wpnlweb-spinner"></span>
+													<?php _e('Loading preview...', 'wpnlweb'); ?>
 												</div>
 											</div>
+										</div>
+
+										<div class="wpnlweb-preview-info">
+											<h4><?php _e('Preview Information', 'wpnlweb'); ?></h4>
+											<ul>
+												<li><?php _e('This preview uses your current theme and color settings', 'wpnlweb'); ?></li>
+												<li><?php _e('Search results come from your actual site content', 'wpnlweb'); ?></li>
+												<li><?php _e('Changes to settings above will be reflected when you refresh the preview', 'wpnlweb'); ?></li>
+											</ul>
 										</div>
 									</div>
 								</div>
@@ -575,7 +589,7 @@ class Wpnlweb_Admin
 				</div>
 			</div>
 		</div>
-<?php
+	<?php
 	}
 
 	/**
@@ -590,7 +604,7 @@ class Wpnlweb_Admin
 			wp_die(__('Security check failed', 'wpnlweb'));
 		}
 
-		// Get settings from request
+		// Get settings from request (for real-time preview updates)
 		$theme_mode = sanitize_text_field($_POST['theme_mode'] ?? get_option('wpnlweb_theme_mode', 'auto'));
 		$primary_color = sanitize_text_field($_POST['primary_color'] ?? get_option('wpnlweb_primary_color', '#3b82f6'));
 		$custom_css = wp_strip_all_tags($_POST['custom_css'] ?? get_option('wpnlweb_custom_css', ''));
@@ -604,15 +618,379 @@ class Wpnlweb_Admin
 		update_option('wpnlweb_primary_color', $primary_color);
 		update_option('wpnlweb_custom_css', $custom_css);
 
-		// Generate shortcode output
-		$shortcode_output = do_shortcode('[wpnlweb placeholder="Search..." button_text="Search"]');
+		// Generate a working preview that's admin-friendly
+		$preview_html = $this->generate_admin_preview($theme_mode, $primary_color, $custom_css);
 
 		// Restore original options
 		update_option('wpnlweb_theme_mode', $original_theme);
 		update_option('wpnlweb_primary_color', $original_color);
 		update_option('wpnlweb_custom_css', $original_css);
 
-		wp_send_json_success(array('html' => $shortcode_output));
+		// Return the preview HTML with inline styles and scripts
+		wp_send_json_success(array(
+			'html' => $preview_html,
+			'settings' => array(
+				'theme_mode' => $theme_mode,
+				'primary_color' => $primary_color,
+				'has_custom_css' => !empty($custom_css)
+			)
+		));
+	}
+
+	/**
+	 * Generate admin-friendly preview HTML
+	 *
+	 * @since    1.0.0
+	 * @param    string $theme_mode Theme mode setting
+	 * @param    string $primary_color Primary color setting  
+	 * @param    string $custom_css Custom CSS setting
+	 * @return   string Preview HTML
+	 */
+	private function generate_admin_preview($theme_mode, $primary_color, $custom_css)
+	{
+		// Generate unique IDs for this preview instance
+		$form_id = 'wpnlweb-preview-' . uniqid();
+		$results_id = 'wpnlweb-results-' . uniqid();
+		$nonce = wp_create_nonce('wpnlweb_search_nonce');
+
+		// Calculate hover color
+		$primary_hover = $this->adjust_color_brightness($primary_color, -20);
+
+		// Start output buffering
+		ob_start();
+	?>
+		<style>
+			/* Inline styles for admin preview */
+			#<?php echo $form_id; ?> {
+				--wpnlweb-primary-color: <?php echo esc_attr($primary_color); ?>;
+				--wpnlweb-primary-hover: <?php echo esc_attr($primary_hover); ?>;
+			}
+
+			.wpnlweb-preview-search-container {
+				max-width: 600px;
+				margin: 0 auto;
+				padding: 20px;
+				background: #ffffff;
+				border: 1px solid #e5e7eb;
+				border-radius: 12px;
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+			}
+
+			.wpnlweb-preview-search-form {
+				margin: 0;
+			}
+
+			.wpnlweb-preview-input-wrapper {
+				display: flex;
+				gap: 12px;
+				margin-bottom: 16px;
+			}
+
+			.wpnlweb-preview-search-input {
+				flex: 1;
+				padding: 12px 16px;
+				border: 2px solid #e5e7eb;
+				border-radius: 8px;
+				font-size: 14px;
+				color: #1f2937;
+				background: #ffffff;
+				transition: all 0.2s ease;
+			}
+
+			.wpnlweb-preview-search-input:focus {
+				outline: none;
+				border-color: var(--wpnlweb-primary-color);
+				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+			}
+
+			.wpnlweb-preview-search-input::placeholder {
+				color: #9ca3af;
+			}
+
+			.wpnlweb-preview-search-button {
+				padding: 12px 20px;
+				background: var(--wpnlweb-primary-color);
+				color: #ffffff;
+				border: none;
+				border-radius: 8px;
+				font-size: 14px;
+				font-weight: 600;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				white-space: nowrap;
+			}
+
+			.wpnlweb-preview-search-button:hover {
+				background: var(--wpnlweb-primary-hover);
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+			}
+
+			.wpnlweb-preview-search-button:active {
+				transform: translateY(0);
+			}
+
+			.wpnlweb-preview-loading {
+				display: none;
+				text-align: center;
+				padding: 16px;
+				color: #6b7280;
+				font-style: italic;
+			}
+
+			.wpnlweb-preview-loading.show {
+				display: block;
+			}
+
+			.wpnlweb-preview-spinner {
+				display: inline-block;
+				width: 16px;
+				height: 16px;
+				border: 2px solid #f3f4f6;
+				border-top: 2px solid var(--wpnlweb-primary-color);
+				border-radius: 50%;
+				animation: wpnlweb-preview-spin 1s linear infinite;
+				margin-right: 8px;
+			}
+
+			@keyframes wpnlweb-preview-spin {
+				0% {
+					transform: rotate(0deg);
+				}
+
+				100% {
+					transform: rotate(360deg);
+				}
+			}
+
+			.wpnlweb-preview-results {
+				margin-top: 20px;
+				border: 1px solid #e5e7eb;
+				border-radius: 8px;
+				background: #f9fafb;
+				display: none;
+			}
+
+			.wpnlweb-preview-results.show {
+				display: block;
+			}
+
+			.wpnlweb-preview-results-title {
+				padding: 12px 16px;
+				margin: 0;
+				background: #ffffff;
+				border-bottom: 1px solid #e5e7eb;
+				font-size: 14px;
+				font-weight: 600;
+				color: #374151;
+			}
+
+			.wpnlweb-preview-results-content {
+				padding: 16px;
+				max-height: 300px;
+				overflow-y: auto;
+			}
+
+			.wpnlweb-preview-result-item {
+				background: #ffffff;
+				border: 1px solid #e5e7eb;
+				border-radius: 6px;
+				padding: 16px;
+				margin-bottom: 12px;
+				transition: all 0.2s ease;
+			}
+
+			.wpnlweb-preview-result-item:last-child {
+				margin-bottom: 0;
+			}
+
+			.wpnlweb-preview-result-item:hover {
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+				border-color: #d1d5db;
+			}
+
+			.wpnlweb-preview-result-title {
+				margin: 0 0 8px 0;
+				font-size: 16px;
+				font-weight: 600;
+			}
+
+			.wpnlweb-preview-result-title a {
+				color: #1f2937;
+				text-decoration: none;
+			}
+
+			.wpnlweb-preview-result-title a:hover {
+				color: var(--wpnlweb-primary-color);
+			}
+
+			.wpnlweb-preview-result-excerpt {
+				margin: 0 0 8px 0;
+				color: #4b5563;
+				font-size: 14px;
+				line-height: 1.5;
+			}
+
+			.wpnlweb-preview-result-meta {
+				font-size: 12px;
+				color: #9ca3af;
+				border-top: 1px solid #f3f4f6;
+				padding-top: 8px;
+			}
+
+			.wpnlweb-preview-no-results {
+				text-align: center;
+				padding: 40px 20px;
+				color: #6b7280;
+				font-style: italic;
+			}
+
+			.wpnlweb-preview-error {
+				background: #fef2f2;
+				color: #dc2626;
+				border: 1px solid #fecaca;
+				border-radius: 6px;
+				padding: 12px 16px;
+				margin: 16px 0;
+				font-size: 14px;
+			}
+
+			/* Apply custom CSS if provided */
+			<?php if (!empty($custom_css)): ?><?php echo wp_strip_all_tags($custom_css); ?><?php endif; ?>
+		</style>
+
+		<div class="wpnlweb-preview-search-container">
+			<form id="<?php echo esc_attr($form_id); ?>" class="wpnlweb-preview-search-form">
+				<div class="wpnlweb-preview-input-wrapper">
+					<input
+						type="text"
+						name="wpnlweb_question"
+						class="wpnlweb-preview-search-input"
+						placeholder="Try searching for content on your site..."
+						required />
+					<button type="submit" class="wpnlweb-preview-search-button">
+						🔍 Search
+					</button>
+				</div>
+				<div id="loading-<?php echo esc_attr($form_id); ?>" class="wpnlweb-preview-loading">
+					<span class="wpnlweb-preview-spinner"></span>
+					Searching your content...
+				</div>
+				<input type="hidden" name="wpnlweb_nonce" value="<?php echo esc_attr($nonce); ?>" />
+			</form>
+
+			<div id="<?php echo esc_attr($results_id); ?>" class="wpnlweb-preview-results">
+				<h3 class="wpnlweb-preview-results-title">Search Results</h3>
+				<div class="wpnlweb-preview-results-content"></div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			(function($) {
+				'use strict';
+
+				// Initialize search functionality for this preview
+				$('#<?php echo esc_js($form_id); ?>').on('submit', function(e) {
+					e.preventDefault();
+
+					const $form = $(this);
+					const $input = $form.find('.wpnlweb-preview-search-input');
+					const $button = $form.find('.wpnlweb-preview-search-button');
+					const $loading = $('#loading-<?php echo esc_js($form_id); ?>');
+					const $results = $('#<?php echo esc_js($results_id); ?>');
+					const $resultsContent = $results.find('.wpnlweb-preview-results-content');
+
+					const question = $input.val().trim();
+					if (!question) {
+						alert('Please enter a search question');
+						return;
+					}
+
+					// Show loading state
+					$loading.addClass('show');
+					$results.removeClass('show');
+					$button.prop('disabled', true);
+
+					// Make AJAX request to the actual search endpoint
+					$.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+							action: 'wpnlweb_search',
+							question: question,
+							max_results: 5,
+							wpnlweb_nonce: $form.find('[name="wpnlweb_nonce"]').val()
+						})
+						.done(function(response) {
+							$loading.removeClass('show');
+							$button.prop('disabled', false);
+
+							if (response.success && response.data) {
+								const results = response.data;
+								let html = '';
+
+								if (results.length > 0) {
+									results.forEach(function(result) {
+										html += '<div class="wpnlweb-preview-result-item">';
+										html += '<h4 class="wpnlweb-preview-result-title">';
+										html += '<a href="' + result.url + '" target="_blank">' + result.title + '</a>';
+										html += '</h4>';
+										html += '<p class="wpnlweb-preview-result-excerpt">' + result.excerpt + '</p>';
+										html += '<div class="wpnlweb-preview-result-meta">';
+										html += 'Published: ' + result.date + ' | Author: ' + result.author;
+										html += '</div>';
+										html += '</div>';
+									});
+								} else {
+									html = '<div class="wpnlweb-preview-no-results">No results found for your search. Try different keywords.</div>';
+								}
+
+								$resultsContent.html(html);
+								$results.addClass('show');
+							} else {
+								const errorMsg = response.data && response.data.message ? response.data.message : 'Search failed. Please try again.';
+								$resultsContent.html('<div class="wpnlweb-preview-error">' + errorMsg + '</div>');
+								$results.addClass('show');
+							}
+						})
+						.fail(function(xhr, status, error) {
+							console.error('Search AJAX Error:', status, error);
+							$loading.removeClass('show');
+							$button.prop('disabled', false);
+							$resultsContent.html('<div class="wpnlweb-preview-error">Connection error. Please check your network and try again.</div>');
+							$results.addClass('show');
+						});
+				});
+
+			})(jQuery);
+		</script>
+<?php
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Adjust color brightness for hover effects
+	 *
+	 * @since    1.0.0
+	 * @param    string $hex_color Hex color code
+	 * @param    int    $percent   Percentage to adjust (-100 to 100)
+	 * @return   string Adjusted hex color
+	 */
+	private function adjust_color_brightness($hex_color, $percent)
+	{
+		// Remove # if present
+		$hex_color = ltrim($hex_color, '#');
+
+		// Convert hex to decimal
+		$r = hexdec(substr($hex_color, 0, 2));
+		$g = hexdec(substr($hex_color, 2, 2));
+		$b = hexdec(substr($hex_color, 4, 2));
+
+		// Adjust brightness
+		$r = max(0, min(255, $r + ($r * $percent / 100)));
+		$g = max(0, min(255, $g + ($g * $percent / 100)));
+		$b = max(0, min(255, $b + ($b * $percent / 100)));
+
+		// Convert back to hex
+		return sprintf('#%02x%02x%02x', $r, $g, $b);
 	}
 
 	/**
