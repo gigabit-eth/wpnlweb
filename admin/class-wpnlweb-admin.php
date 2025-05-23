@@ -297,13 +297,17 @@ class Wpnlweb_Admin
 ?>
 
 		<div class="wrap">
-			<?php
-			// Let WordPress render admin notices here naturally
-			// This is where theme/plugin notifications should appear
-			?>
+			<!-- Standard WordPress admin page title -->
+			<h1>
+				<span class="wpnlweb-admin-icon">⚙️</span>
+				<?php echo esc_html(get_admin_page_title()); ?>
+				<?php if (!$css_exists): ?><span style="color: #dc3545; font-size: 16px; font-weight: normal;"> - Missing Styles</span><?php endif; ?>
+			</h1>
+
+			<!-- WordPress admin notices will appear here automatically -->
 
 			<?php if ($show_diagnostic): ?>
-				<!-- Diagnostic Information - Above custom interface -->
+				<!-- Diagnostic Information - WordPress standard notice -->
 				<div class="notice notice-warning">
 					<h3 style="margin-top: 0;">🔍 WPNLWeb Diagnostic Information</h3>
 					<p><strong>CSS File Path:</strong> <code><?php echo esc_html($css_file_path); ?></code></p>
@@ -341,14 +345,9 @@ class Wpnlweb_Admin
 			<!-- Custom Admin Interface starts here -->
 			<div class="wpnlweb-admin-wrapper" <?php if (!$css_exists): ?> style="border: 2px solid #dc3545; background: #fff5f5;" <?php endif; ?>>
 				<div class="wpnlweb-admin-header" <?php if (!$css_exists): ?> style="background: #fee; padding: 20px; border-bottom: 1px solid #fcc;" <?php endif; ?>>
-					<h1<?php if (!$css_exists): ?> style="color: #dc3545; margin: 0;" <?php endif; ?>>
-						<span class="wpnlweb-admin-icon">⚙️</span>
-						<?php echo esc_html(get_admin_page_title()); ?>
-						<?php if (!$css_exists): ?><span style="color: #dc3545; font-size: 14px; font-weight: normal;"> - Missing Styles</span><?php endif; ?>
-						</h1>
-						<p class="wpnlweb-admin-subtitle" <?php if (!$css_exists): ?> style="color: #666; margin: 5px 0 0 0;" <?php endif; ?>>
-							<?php _e('Customize the appearance of your WPNLWeb search forms and interface.', 'wpnlweb'); ?>
-						</p>
+					<p class="wpnlweb-admin-subtitle" <?php if (!$css_exists): ?> style="color: #666; margin: 5px 0 0 0;" <?php endif; ?>>
+						<?php _e('Customize the appearance of your WPNLWeb search forms and interface.', 'wpnlweb'); ?>
+					</p>
 				</div>
 
 				<div class="wpnlweb-admin-container">
