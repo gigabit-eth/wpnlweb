@@ -346,6 +346,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ### Version 1.1 (Planned)
 
 - [ ] Advanced search filters and faceting
+- [ ] Qdrant Vector Embeddings
 - [ ] Real-time search suggestions
 - [ ] Search analytics dashboard
 - [ ] Multi-language support improvements
@@ -353,6 +354,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ### Version 1.2 (Planned)
 
 - [ ] Custom AI model integration
+- [ ] LanceDB, Milvus integration
 - [ ] Advanced caching mechanisms
 - [ ] Elasticsearch integration
 - [ ] GraphQL endpoint support
