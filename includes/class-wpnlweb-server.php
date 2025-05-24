@@ -1,5 +1,10 @@
 <?php
 
+// If this file is called directly, abort.
+if (! defined('ABSPATH')) {
+    die;
+}
+
 /**
  * The NLWeb server functionality of the plugin.
  *
@@ -86,10 +91,34 @@ class Wpnlweb_Server
     {
         remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
         add_filter('rest_pre_serve_request', function ($value) {
+            // More comprehensive CORS headers for AI agent compatibility
             header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization');
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin');
+            header('Access-Control-Allow-Credentials: false');
+            header('Access-Control-Max-Age: 86400'); // 24 hours
+            header('Vary: Origin');
+
+            // Handle OPTIONS preflight request
+            if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+                http_response_code(200);
+                exit();
+            }
+
             return $value;
+        });
+
+        // Also add CORS headers specifically to our endpoint
+        add_action('rest_api_init', function () {
+            add_filter('rest_post_dispatch', function ($result, $server, $request) {
+                // Check if this is our endpoint
+                if (strpos($request->get_route(), '/nlweb/v1/ask') !== false) {
+                    header('Access-Control-Allow-Origin: *');
+                    header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+                    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+                }
+                return $result;
+            }, 10, 3);
         });
     }
 
@@ -108,7 +137,7 @@ class Wpnlweb_Server
         header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
         // Handle preflight OPTIONS request
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             exit(0);
         }
 

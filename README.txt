@@ -1,15 +1,15 @@
 === WPNLWeb ===
 Contributors: typewriter
 Donate link: https://wpnlweb.com/donate
-Tags: ai, nlp, search, api, rest, nlweb, artificial intelligence, natural language, endpoint
+Tags: ai, nlweb, artificial intelligence, natural language, nlp
 Requires at least: 5.0
-Tested up to: 6.5
+Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Transform your WordPress site into an AI-agent accessible endpoint. Make your content queryable by natural language and join the agentic web revolution.
+AI-power your WordPress site. Natural language search meets the agentic web.
 
 == Description ==
 

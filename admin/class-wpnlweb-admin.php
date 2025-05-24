@@ -1,5 +1,10 @@
 <?php
 
+// If this file is called directly, abort.
+if (! defined('ABSPATH')) {
+	die;
+}
+
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -91,15 +96,105 @@ class Wpnlweb_Admin
 	 */
 	public function init_settings()
 	{
-		// Register settings
-		register_setting('wpnlweb_settings', 'wpnlweb_custom_css');
-		register_setting('wpnlweb_settings', 'wpnlweb_theme_mode');
-		register_setting('wpnlweb_settings', 'wpnlweb_primary_color');
+		// Register settings with proper sanitization callbacks
+		register_setting('wpnlweb_settings', 'wpnlweb_custom_css', array(
+			'sanitize_callback' => array($this, 'sanitize_custom_css'),
+			'default' => ''
+		));
+
+		register_setting('wpnlweb_settings', 'wpnlweb_theme_mode', array(
+			'sanitize_callback' => array($this, 'sanitize_theme_mode'),
+			'default' => 'auto'
+		));
+
+		register_setting('wpnlweb_settings', 'wpnlweb_primary_color', array(
+			'sanitize_callback' => array($this, 'sanitize_primary_color'),
+			'default' => '#3b82f6'
+		));
 
 		// Add a hook to clear caches when settings are saved
 		add_action('update_option_wpnlweb_theme_mode', array($this, 'clear_style_caches'));
 		add_action('update_option_wpnlweb_primary_color', array($this, 'clear_style_caches'));
 		add_action('update_option_wpnlweb_custom_css', array($this, 'clear_style_caches'));
+	}
+
+	/**
+	 * Sanitize custom CSS input
+	 *
+	 * @since    1.0.0
+	 * @param    string $input Raw CSS input
+	 * @return   string Sanitized CSS
+	 */
+	public function sanitize_custom_css($input)
+	{
+		if (empty($input)) {
+			return '';
+		}
+
+		// Strip dangerous content
+		$input = wp_strip_all_tags($input);
+
+		// Remove potentially dangerous CSS patterns
+		$dangerous_patterns = array(
+			'/javascript\s*:/i',
+			'/vbscript\s*:/i',
+			'/expression\s*\(/i',
+			'/behavior\s*:/i',
+			'/binding\s*:/i',
+			'/@import/i',
+			'/url\s*\(\s*["\']?\s*javascript/i',
+			'/url\s*\(\s*["\']?\s*data:/i'
+		);
+
+		$input = preg_replace($dangerous_patterns, '', $input);
+
+		// Ensure we return clean CSS
+		return sanitize_textarea_field($input);
+	}
+
+	/**
+	 * Sanitize theme mode setting
+	 *
+	 * @since    1.0.0
+	 * @param    string $input Theme mode input
+	 * @return   string Sanitized theme mode
+	 */
+	public function sanitize_theme_mode($input)
+	{
+		$valid_modes = array('auto', 'light', 'dark');
+
+		if (in_array($input, $valid_modes, true)) {
+			return $input;
+		}
+
+		// Return default if invalid
+		return 'auto';
+	}
+
+	/**
+	 * Sanitize primary color setting
+	 *
+	 * @since    1.0.0
+	 * @param    string $input Color input
+	 * @return   string Sanitized hex color
+	 */
+	public function sanitize_primary_color($input)
+	{
+		// Remove any whitespace
+		$input = trim($input);
+
+		// Validate hex color format
+		if (preg_match('/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/', $input)) {
+			return strtolower($input);
+		}
+
+		// Try to add # if missing
+		if (preg_match('/^([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/', $input)) {
+			return '#' . strtolower($input);
+		}
+
+		// Return default color if invalid
+		return '#3b82f6';
 	}
 
 	/**
@@ -149,7 +244,7 @@ class Wpnlweb_Admin
 
 			// Localize script for AJAX
 			wp_localize_script($this->plugin_name . '-admin', 'wpnlweb_admin', array(
-				'ajax_url' => admin_url('admin-ajax.php'),
+				'ajax_url' => esc_url(admin_url('admin-ajax.php')),
 				'nonce' => wp_create_nonce('wpnlweb_admin_nonce')
 			));
 		} else {
@@ -346,7 +441,7 @@ class Wpnlweb_Admin
 			<div class="wpnlweb-admin-wrapper" <?php if (!$css_exists): ?> style="border: 2px solid #dc3545; background: #fff5f5;" <?php endif; ?>>
 				<div class="wpnlweb-admin-header" <?php if (!$css_exists): ?> style="background: #fee; padding: 20px; border-bottom: 1px solid #fcc;" <?php endif; ?>>
 					<p class="wpnlweb-admin-subtitle" <?php if (!$css_exists): ?> style="color: #666; margin: 5px 0 0 0;" <?php endif; ?>>
-						<?php _e('Customize the appearance of your WPNLWeb search forms and interface.', 'wpnlweb'); ?>
+						<?php esc_html_e('Customize the appearance of your WPNLWeb search forms and interface.', 'wpnlweb'); ?>
 					</p>
 				</div>
 
@@ -354,22 +449,22 @@ class Wpnlweb_Admin
 					<!-- Sidebar Navigation -->
 					<div class="wpnlweb-admin-sidebar">
 						<div class="wpnlweb-sidebar-header">
-							<h2><?php _e('Settings', 'wpnlweb'); ?></h2>
-							<p><?php _e('Configure your preferences', 'wpnlweb'); ?></p>
+							<h2><?php esc_html_e('Settings', 'wpnlweb'); ?></h2>
+							<p><?php esc_html_e('Configure your preferences', 'wpnlweb'); ?></p>
 						</div>
 
 						<nav class="wpnlweb-sidebar-nav">
 							<a href="#theme" class="wpnlweb-nav-item active" data-tab="theme">
 								<span class="wpnlweb-nav-icon">🎨</span>
-								<?php _e('Theme', 'wpnlweb'); ?>
+								<?php esc_html_e('Theme', 'wpnlweb'); ?>
 							</a>
 							<a href="#custom-css" class="wpnlweb-nav-item" data-tab="custom-css">
 								<span class="wpnlweb-nav-icon">📝</span>
-								<?php _e('Custom CSS', 'wpnlweb'); ?>
+								<?php esc_html_e('Custom CSS', 'wpnlweb'); ?>
 							</a>
 							<a href="#live-preview" class="wpnlweb-nav-item" data-tab="live-preview">
 								<span class="wpnlweb-nav-icon">👁️</span>
-								<?php _e('Live Preview', 'wpnlweb'); ?>
+								<?php esc_html_e('Live Preview', 'wpnlweb'); ?>
 							</a>
 						</nav>
 					</div>
@@ -384,37 +479,37 @@ class Wpnlweb_Admin
 								<div class="wpnlweb-tab-header">
 									<h2>
 										<span class="wpnlweb-tab-icon">🎨</span>
-										<?php _e('Theme Customization', 'wpnlweb'); ?>
+										<?php esc_html_e('Theme Customization', 'wpnlweb'); ?>
 									</h2>
-									<p><?php _e('Customize the appearance of your WPNLWeb search forms.', 'wpnlweb'); ?></p>
+									<p><?php esc_html_e('Customize the appearance of your WPNLWeb search forms.', 'wpnlweb'); ?></p>
 								</div>
 
 								<div class="wpnlweb-setting-group">
 									<label class="wpnlweb-setting-label">
-										<?php _e('Theme Mode', 'wpnlweb'); ?>
+										<?php esc_html_e('Theme Mode', 'wpnlweb'); ?>
 									</label>
 									<p class="wpnlweb-setting-description">
-										<?php _e('Choose the theme mode for the search interface.', 'wpnlweb'); ?>
+										<?php esc_html_e('Choose the theme mode for the search interface.', 'wpnlweb'); ?>
 									</p>
 									<select name="wpnlweb_theme_mode" id="wpnlweb_theme_mode" class="wpnlweb-select">
 										<option value="auto" <?php selected($theme_mode, 'auto'); ?>>
-											☀️ <?php _e('Auto (Follow System)', 'wpnlweb'); ?>
+											☀️ <?php esc_html_e('Auto (Follow System)', 'wpnlweb'); ?>
 										</option>
 										<option value="light" <?php selected($theme_mode, 'light'); ?>>
-											☀️ <?php _e('Light Mode', 'wpnlweb'); ?>
+											☀️ <?php esc_html_e('Light Mode', 'wpnlweb'); ?>
 										</option>
 										<option value="dark" <?php selected($theme_mode, 'dark'); ?>>
-											🌙 <?php _e('Dark Mode', 'wpnlweb'); ?>
+											🌙 <?php esc_html_e('Dark Mode', 'wpnlweb'); ?>
 										</option>
 									</select>
 								</div>
 
 								<div class="wpnlweb-setting-group">
 									<label class="wpnlweb-setting-label">
-										<?php _e('Primary Color', 'wpnlweb'); ?>
+										<?php esc_html_e('Primary Color', 'wpnlweb'); ?>
 									</label>
 									<p class="wpnlweb-setting-description">
-										<?php _e('Choose the primary color for buttons and focus states.', 'wpnlweb'); ?>
+										<?php esc_html_e('Choose the primary color for buttons and focus states.', 'wpnlweb'); ?>
 									</p>
 
 									<div class="wpnlweb-color-picker-wrapper">
@@ -433,7 +528,7 @@ class Wpnlweb_Admin
 									</div>
 
 									<div class="wpnlweb-preset-colors">
-										<label class="wpnlweb-preset-label"><?php _e('Preset Colors', 'wpnlweb'); ?></label>
+										<label class="wpnlweb-preset-label"><?php esc_html_e('Preset Colors', 'wpnlweb'); ?></label>
 										<div class="wpnlweb-preset-grid">
 											<?php foreach ($preset_colors as $color): ?>
 												<button type="button"
@@ -453,22 +548,22 @@ class Wpnlweb_Admin
 								<div class="wpnlweb-tab-header">
 									<h2>
 										<span class="wpnlweb-tab-icon">📝</span>
-										<?php _e('Custom CSS', 'wpnlweb'); ?>
+										<?php esc_html_e('Custom CSS', 'wpnlweb'); ?>
 									</h2>
-									<p><?php _e('Add custom CSS to further customize the appearance. This CSS will be applied to all WPNLWeb shortcodes.', 'wpnlweb'); ?></p>
+									<p><?php esc_html_e('Add custom CSS to further customize the appearance. This CSS will be applied to all WPNLWeb shortcodes.', 'wpnlweb'); ?></p>
 								</div>
 
 								<div class="wpnlweb-setting-group">
 									<div class="wpnlweb-css-editor-header">
 										<label class="wpnlweb-setting-label">
-											<?php _e('Custom CSS', 'wpnlweb'); ?>
+											<?php esc_html_e('Custom CSS', 'wpnlweb'); ?>
 										</label>
 										<div class="wpnlweb-css-actions">
 											<button type="button" class="wpnlweb-button-secondary" id="wpnlweb-copy-example">
-												📋 <?php _e('Copy Example', 'wpnlweb'); ?>
+												📋 <?php esc_html_e('Copy Example', 'wpnlweb'); ?>
 											</button>
 											<button type="button" class="wpnlweb-button-secondary" id="wpnlweb-reset-css">
-												🔄 <?php _e('Reset', 'wpnlweb'); ?>
+												🔄 <?php esc_html_e('Reset', 'wpnlweb'); ?>
 											</button>
 										</div>
 									</div>
@@ -480,45 +575,45 @@ class Wpnlweb_Admin
 										placeholder="<?php esc_attr_e('Add your custom CSS here...', 'wpnlweb'); ?>"><?php echo esc_textarea($custom_css); ?></textarea>
 
 									<div class="wpnlweb-css-example">
-										<p><?php _e('Add custom CSS to override default styles. Example:', 'wpnlweb'); ?></p>
+										<p><?php esc_html_e('Add custom CSS to override default styles. Example:', 'wpnlweb'); ?></p>
 										<pre class="wpnlweb-code-block"><code>.wpnlweb-search-container { border-radius: 20px; }
 .wpnlweb-search-button { background: var(--wpnlweb-primary-color); }</code></pre>
 									</div>
 
 									<div class="wpnlweb-css-reference">
-										<h3><?php _e('CSS Custom Properties Reference', 'wpnlweb'); ?></h3>
-										<p><?php _e('You can use these CSS custom properties in your custom CSS to maintain consistency:', 'wpnlweb'); ?></p>
+										<h3><?php esc_html_e('CSS Custom Properties Reference', 'wpnlweb'); ?></h3>
+										<p><?php esc_html_e('You can use these CSS custom properties in your custom CSS to maintain consistency:', 'wpnlweb'); ?></p>
 
 										<div class="wpnlweb-css-properties">
 											<div class="wpnlweb-css-property">
 												<code class="wpnlweb-css-var">--wpnlweb-primary-color</code>
-												<span class="wpnlweb-css-desc"><?php _e('Main brand color', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Main brand color', 'wpnlweb'); ?></span>
 												<code class="wpnlweb-css-var">--wpnlweb-primary-hover</code>
-												<span class="wpnlweb-css-desc"><?php _e('Hover state color', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Hover state color', 'wpnlweb'); ?></span>
 											</div>
 											<div class="wpnlweb-css-property">
 												<code class="wpnlweb-css-var">--wpnlweb-bg-primary</code>
-												<span class="wpnlweb-css-desc"><?php _e('Main background color', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Main background color', 'wpnlweb'); ?></span>
 												<code class="wpnlweb-css-var">--wpnlweb-bg-secondary</code>
-												<span class="wpnlweb-css-desc"><?php _e('Secondary background', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Secondary background', 'wpnlweb'); ?></span>
 											</div>
 											<div class="wpnlweb-css-property">
 												<code class="wpnlweb-css-var">--wpnlweb-text-primary</code>
-												<span class="wpnlweb-css-desc"><?php _e('Main text color', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Main text color', 'wpnlweb'); ?></span>
 												<code class="wpnlweb-css-var">--wpnlweb-text-secondary</code>
-												<span class="wpnlweb-css-desc"><?php _e('Secondary text color', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Secondary text color', 'wpnlweb'); ?></span>
 											</div>
 											<div class="wpnlweb-css-property">
 												<code class="wpnlweb-css-var">--wpnlweb-border-radius</code>
-												<span class="wpnlweb-css-desc"><?php _e('Border radius', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Border radius', 'wpnlweb'); ?></span>
 												<code class="wpnlweb-css-var">--wpnlweb-spacing-sm</code>
-												<span class="wpnlweb-css-desc"><?php _e('Small spacing (12px)', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Small spacing (12px)', 'wpnlweb'); ?></span>
 											</div>
 											<div class="wpnlweb-css-property">
 												<code class="wpnlweb-css-var">--wpnlweb-spacing-md</code>
-												<span class="wpnlweb-css-desc"><?php _e('Medium spacing (20px)', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Medium spacing (20px)', 'wpnlweb'); ?></span>
 												<code class="wpnlweb-css-var">--wpnlweb-spacing-lg</code>
-												<span class="wpnlweb-css-desc"><?php _e('Large spacing (30px)', 'wpnlweb'); ?></span>
+												<span class="wpnlweb-css-desc"><?php esc_html_e('Large spacing (30px)', 'wpnlweb'); ?></span>
 											</div>
 										</div>
 									</div>
@@ -530,48 +625,50 @@ class Wpnlweb_Admin
 								<div class="wpnlweb-tab-header">
 									<h2>
 										<span class="wpnlweb-tab-icon">👁️</span>
-										<?php _e('Live Preview', 'wpnlweb'); ?>
+										<?php esc_html_e('Live Preview', 'wpnlweb'); ?>
 									</h2>
-									<p><?php _e('Test your WPNLWeb search interface with live functionality. This preview uses the actual API endpoint.', 'wpnlweb'); ?></p>
+									<p><?php esc_html_e('Test your WPNLWeb search interface with live functionality. This preview uses the actual API endpoint.', 'wpnlweb'); ?></p>
 								</div>
 
 								<div class="wpnlweb-setting-group">
 									<label class="wpnlweb-setting-label">
-										<?php _e('Shortcode Usage', 'wpnlweb'); ?>
+										<?php esc_html_e('Shortcode Usage', 'wpnlweb'); ?>
 									</label>
 
 									<div class="wpnlweb-shortcode-display">
-										<span class="wpnlweb-shortcode-label"><?php _e('Shortcode:', 'wpnlweb'); ?></span>
+										<span class="wpnlweb-shortcode-label"><?php esc_html_e('Shortcode:', 'wpnlweb'); ?></span>
 										<code class="wpnlweb-shortcode-code">[wpnlweb]</code>
+										<span class="wpnlweb-shortcode-label"><?php esc_html_e('Shortcode with placeholder and custom text:', 'wpnlweb'); ?></span>
+										<code class="wpnlweb-shortcode-code">[wpnlweb placeholder="Search our knowledge..." button_text="Find Answers" max_results="5"]</code>
 									</div>
 
 									<div class="wpnlweb-preview-section">
-										<h3><?php _e('Live Functional Preview', 'wpnlweb'); ?></h3>
+										<h3><?php esc_html_e('Live Functional Preview', 'wpnlweb'); ?></h3>
 										<p class="wpnlweb-preview-description">
-											<?php _e('This is a fully functional preview that connects to your site\'s content via the NLWeb API endpoint. Try searching for content on your site!', 'wpnlweb'); ?>
+											<?php esc_html_e('This is a fully functional preview that connects to your site\'s content via the NLWeb API endpoint. Try searching for content on your site!', 'wpnlweb'); ?>
 										</p>
 
 										<div class="wpnlweb-preview-container">
 											<div class="wpnlweb-preview-header">
-												<?php _e('Live Preview', 'wpnlweb'); ?>
+												<?php esc_html_e('Live Preview', 'wpnlweb'); ?>
 												<button type="button" id="wpnlweb-refresh-preview" class="wpnlweb-button-secondary wpnlweb-refresh-btn">
-													🔄 <?php _e('Refresh Preview', 'wpnlweb'); ?>
+													🔄 <?php esc_html_e('Refresh Preview', 'wpnlweb'); ?>
 												</button>
 											</div>
 											<div id="wpnlweb-live-preview" class="wpnlweb-live-preview">
 												<div class="wpnlweb-preview-loading">
 													<span class="wpnlweb-spinner"></span>
-													<?php _e('Loading preview...', 'wpnlweb'); ?>
+													<?php esc_html_e('Loading preview...', 'wpnlweb'); ?>
 												</div>
 											</div>
 										</div>
 
 										<div class="wpnlweb-preview-info">
-											<h4><?php _e('Preview Information', 'wpnlweb'); ?></h4>
+											<h4><?php esc_html_e('Preview Information', 'wpnlweb'); ?></h4>
 											<ul>
-												<li><?php _e('This preview uses your current theme and color settings', 'wpnlweb'); ?></li>
-												<li><?php _e('Search results come from your actual site content', 'wpnlweb'); ?></li>
-												<li><?php _e('Changes to settings above will be reflected when you refresh the preview', 'wpnlweb'); ?></li>
+												<li><?php esc_html_e('This preview uses your current theme and color settings', 'wpnlweb'); ?></li>
+												<li><?php esc_html_e('Search results come from your actual site content', 'wpnlweb'); ?></li>
+												<li><?php esc_html_e('Changes to settings above will be reflected when you refresh the preview', 'wpnlweb'); ?></li>
 											</ul>
 										</div>
 									</div>
@@ -581,7 +678,7 @@ class Wpnlweb_Admin
 							<!-- Save Button -->
 							<div class="wpnlweb-form-actions">
 								<button type="submit" class="wpnlweb-button-primary">
-									💾 <?php _e('Save Settings', 'wpnlweb'); ?>
+									💾 <?php esc_html_e('Save Settings', 'wpnlweb'); ?>
 								</button>
 							</div>
 						</form>
@@ -593,21 +690,21 @@ class Wpnlweb_Admin
 	}
 
 	/**
-	 * Handle AJAX preview shortcode request
+	 * Handle AJAX request for shortcode preview
 	 *
 	 * @since    1.0.0
 	 */
 	public function handle_preview_shortcode()
 	{
 		// Verify nonce
-		if (!wp_verify_nonce($_POST['nonce'], 'wpnlweb_admin_nonce')) {
-			wp_die(__('Security check failed', 'wpnlweb'));
+		if (!isset($_POST['nonce']) || !wp_verify_nonce(wp_unslash($_POST['nonce']), 'wpnlweb_admin_nonce')) {
+			wp_die(esc_html__('Security check failed', 'wpnlweb'));
 		}
 
 		// Get settings from request (for real-time preview updates)
-		$theme_mode = sanitize_text_field($_POST['theme_mode'] ?? get_option('wpnlweb_theme_mode', 'auto'));
-		$primary_color = sanitize_text_field($_POST['primary_color'] ?? get_option('wpnlweb_primary_color', '#3b82f6'));
-		$custom_css = wp_strip_all_tags($_POST['custom_css'] ?? get_option('wpnlweb_custom_css', ''));
+		$theme_mode = isset($_POST['theme_mode']) ? sanitize_text_field(wp_unslash($_POST['theme_mode'])) : get_option('wpnlweb_theme_mode', 'auto');
+		$primary_color = isset($_POST['primary_color']) ? sanitize_text_field(wp_unslash($_POST['primary_color'])) : get_option('wpnlweb_primary_color', '#3b82f6');
+		$custom_css = isset($_POST['custom_css']) ? wp_strip_all_tags(wp_unslash($_POST['custom_css'])) : get_option('wpnlweb_custom_css', '');
 
 		// Temporarily set options for preview
 		$original_theme = get_option('wpnlweb_theme_mode');
@@ -661,7 +758,7 @@ class Wpnlweb_Admin
 	?>
 		<style>
 			/* Inline styles for admin preview */
-			#<?php echo $form_id; ?> {
+			#<?php echo esc_attr($form_id); ?> {
 				--wpnlweb-primary-color: <?php echo esc_attr($primary_color); ?>;
 				--wpnlweb-primary-hover: <?php echo esc_attr($primary_hover); ?>;
 			}
@@ -931,7 +1028,7 @@ class Wpnlweb_Admin
 			}
 
 			/* Apply custom CSS if provided */
-			<?php if (!empty($custom_css)): ?><?php echo wp_strip_all_tags($custom_css); ?><?php endif; ?>
+			<?php if (!empty($custom_css)): ?><?php echo esc_html(wp_strip_all_tags($custom_css)); ?><?php endif; ?>
 		</style>
 
 		<div class="wpnlweb-preview-search-container">
@@ -987,7 +1084,7 @@ class Wpnlweb_Admin
 					$button.prop('disabled', true);
 
 					// Make AJAX request to the actual search endpoint
-					$.post('<?php echo admin_url('admin-ajax.php'); ?>', {
+					$.post('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
 							action: 'wpnlweb_search',
 							question: question,
 							max_results: 5,
@@ -1105,7 +1202,7 @@ class Wpnlweb_Admin
 	 */
 	public function add_settings_link($links)
 	{
-		$settings_link = '<a href="' . admin_url('admin.php?page=wpnlweb-settings') . '">' . __('Settings', 'wpnlweb') . '</a>';
+		$settings_link = '<a href="' . esc_url(admin_url('admin.php?page=wpnlweb-settings')) . '">' . __('Settings', 'wpnlweb') . '</a>';
 		array_unshift($links, $settings_link);
 		return $links;
 	}

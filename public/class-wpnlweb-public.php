@@ -1,5 +1,10 @@
 <?php
 
+// If this file is called directly, abort.
+if (! defined('ABSPATH')) {
+	die;
+}
+
 /**
  * The public-facing functionality of the plugin.
  *
@@ -125,14 +130,14 @@ class Wpnlweb_Public
 				</div>
 				<div class="wpnlweb-loading" style="display: none;">
 					<span class="wpnlweb-spinner"></span>
-					<?php _e('Searching...', 'wpnlweb'); ?>
+					<?php esc_html_e('Searching...', 'wpnlweb'); ?>
 				</div>
 				<?php wp_nonce_field('wpnlweb_search_nonce', 'wpnlweb_nonce'); ?>
 			</form>
 
 			<?php if ($atts['show_results'] === 'true'): ?>
 				<div id="<?php echo esc_attr($results_id); ?>" class="wpnlweb-search-results" style="display: none;">
-					<h3 class="wpnlweb-results-title"><?php _e('Search Results', 'wpnlweb'); ?></h3>
+					<h3 class="wpnlweb-results-title"><?php esc_html_e('Search Results', 'wpnlweb'); ?></h3>
 					<div class="wpnlweb-results-content"></div>
 				</div>
 			<?php endif; ?>
@@ -145,8 +150,8 @@ class Wpnlweb_Public
 					results_id: '<?php echo esc_js($results_id); ?>',
 					max_results: <?php echo intval($atts['max_results']); ?>,
 					show_results: <?php echo $atts['show_results'] === 'true' ? 'true' : 'false'; ?>,
-					ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
-					nonce: '<?php echo wp_create_nonce('wpnlweb_search_nonce'); ?>'
+					ajax_url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+					nonce: '<?php echo esc_js(wp_create_nonce('wpnlweb_search_nonce')); ?>'
 				};
 			</script>
 		</div>
@@ -164,7 +169,7 @@ class Wpnlweb_Public
 
 		// Verify nonce
 		if (! wp_verify_nonce($_POST['wpnlweb_nonce'], 'wpnlweb_search_nonce')) {
-			wp_die(__('Security check failed', 'wpnlweb'));
+			wp_die(esc_html__('Security check failed', 'wpnlweb'));
 		}
 
 		// Get the question
@@ -172,7 +177,7 @@ class Wpnlweb_Public
 		$max_results = intval($_POST['max_results']) ?: 10;
 
 		if (empty($question)) {
-			wp_send_json_error(array('message' => __('Please enter a question', 'wpnlweb')));
+			wp_send_json_error(array('message' => esc_html__('Please enter a question', 'wpnlweb')));
 		}
 
 		// Use the existing NLWeb server logic
@@ -217,7 +222,7 @@ class Wpnlweb_Public
 				'count' => count($posts)
 			));
 		} else {
-			wp_send_json_error(array('message' => __('Search functionality not available', 'wpnlweb')));
+			wp_send_json_error(array('message' => esc_html__('Search functionality not available', 'wpnlweb')));
 		}
 	}
 
@@ -235,7 +240,7 @@ class Wpnlweb_Public
 		if (empty($posts)) {
 			return '<p class="wpnlweb-no-results">' .
 				/* translators: %s is the search query entered by the user */
-				sprintf(__('No results found for "%s"', 'wpnlweb'), esc_html($question)) .
+				sprintf(esc_html__('No results found for "%s"', 'wpnlweb'), esc_html($question)) .
 				'</p>';
 		}
 
