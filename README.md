@@ -1,4 +1,4 @@
-# 🤖 WPNLWeb - WordPress Natural Language Web Plugin
+# 🤖 WPNLWeb - WordPress Natural Language AI Plugin
 
 <img src="https://wpnlweb.com/assets/banner-1544x500.png" alt="WPNLWeb Search Interface" />
 
@@ -25,10 +25,10 @@
 ## 📸 Screenshots
 
 ![WPNLWeb Search Interface](https://wpnlweb.com/assets/screenshot-1.png)
-_Natural language search interface_
+_Settings and configuration panel_
 
 ![Admin Dashboard](https://wpnlweb.com/assets/screenshot-2.png)
-_Settings and configuration panel_
+_Natural language search interface_
 
 ![API Response](https://wpnlweb.com/assets/screenshot-3.png)
 _Schema.org compliant API responses_
@@ -80,7 +80,7 @@ curl -X POST https://yoursite.com/wp-json/nlweb/v1/ask \
 
 ```bash
 # Clone the repository
-git clone https://github.com/typewriter/wpnlweb.git
+git clone https://github.com/gigabit-eth/wpnlweb.git
 cd wpnlweb
 
 # Install PHP dependencies
@@ -333,7 +333,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ## 📖 Documentation
 
 - **[Installation Guide](INSTALL.txt)** - Detailed installation instructions
-- **[Testing Guide](PHASE2_TESTING_GUIDE.md)** - Comprehensive testing procedures
+- **[Testing Guide](TESTING_GUIDE.md)** - Comprehensive testing procedures
 - **[API Reference](docs/api.md)** - Complete API documentation
 - **[Hooks Reference](docs/hooks.md)** - WordPress hooks and filters
 - **[Customization Guide](docs/customization.md)** - Theme and styling options
