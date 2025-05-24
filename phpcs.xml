@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<ruleset name="WPNLWeb">
+    <description>WordPress Coding Standards for WPNLWeb Plugin</description>
+
+    <!-- Check all PHP files in the plugin -->
+    <file>.</file>
+
+    <!-- Exclude vendor and other unnecessary files -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*.js</exclude-pattern>
+    <exclude-pattern>*.css</exclude-pattern>
+
+    <!-- Show progress and sniff codes -->
+    <arg value="ps"/>
+    
+    <!-- Show colors in output -->
+    <arg name="colors"/>
+
+    <!-- Check up to 8 files simultaneously -->
+    <arg name="parallel" value="8"/>
+
+    <!-- Use WordPress coding standards -->
+    <rule ref="WordPress"/>
+
+    <!-- Use WordPress-Extra rules -->
+    <rule ref="WordPress-Extra">
+        <!-- Allow short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+    </rule>
+
+    <!-- Use WordPress-Docs rules -->
+    <rule ref="WordPress-Docs"/>
+
+    <!-- Check for PHP cross-version compatibility -->
+    <rule ref="PHPCompatibilityWP"/>
+
+    <!-- Configure for WordPress 5.0+ -->
+    <config name="testVersion" value="7.4-"/>
+    <config name="minimum_supported_wp_version" value="5.0"/>
+
+    <!-- Text Domain Verification -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="wpnlweb"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Prefix all the things - but allow existing plugin-specific functions -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="wpnlweb"/>
+                <element value="Wpnlweb"/>
+                <element value="WPNLWEB"/>
+            </property>
+        </properties>
+        <!-- Allow existing activation/deactivation functions -->
+        <exclude-pattern>wpnlweb.php</exclude-pattern>
+    </rule>
+
+    <!-- Allow short array syntax for modern PHP -->
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+</ruleset> 

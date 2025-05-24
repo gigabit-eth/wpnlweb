@@ -1,0 +1,38 @@
+{
+  "name": "typewriter/wpnlweb",
+  "description": "WordPress Natural Language Web Plugin",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "TypeWriter",
+      "email": "team@typewriter.sh"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.9",
+    "wp-coding-standards/wpcs": "^3.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "php-stubs/wordpress-stubs": "^6.0"
+  },
+  "scripts": {
+    "lint": "phpcs",
+    "lint-fix": "phpcbf",
+    "lint-errors-only": "phpcs --error-severity=1 --warning-severity=8",
+    "lint-file": "phpcs --standard=phpcs.xml",
+    "fix-file": "phpcbf --standard=phpcs.xml",
+    "check-syntax": "find . -name '*.php' -not -path './vendor/*' -exec php -l {} \\;",
+    "dev-setup": "echo 'Development environment ready! Use: composer lint, composer lint-fix'"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
+}
