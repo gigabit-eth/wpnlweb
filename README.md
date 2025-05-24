@@ -40,11 +40,14 @@ _Schema.org compliant API responses_
 1. **Install the Plugin**
 
    ```bash
-   # From WordPress Admin
+   # From WordPress Admin (⚠️ PENDING PLUGIN REVIEW ⚠️)
    Plugins > Add New > Search "WPNLWeb" > Install > Activate
 
-   # Or download from WordPress.org
+   # Or download from WordPress.org (⚠️ PENDING PLUGIN REVIEW ⚠️)
    wget https://downloads.wordpress.org/plugin/wpnlweb.zip
+
+   # Download Plugin Zip File Until Approved by Wordpress
+   https://github.com/gigabit-eth/wpnlweb/releases
    ```
 
 2. **Add Search to Any Page**
