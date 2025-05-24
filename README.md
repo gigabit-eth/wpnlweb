@@ -6,7 +6,6 @@
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-blue)](https://php.net/)
 [![WordPress](https://img.shields.io/badge/wordpress-%3E%3D5.0-blue)](https://wordpress.org/)
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![Tests](https://img.shields.io/badge/tests-98.4%25-brightgreen)](PHASE2_COMPLETION_REPORT.md)
 
 > Transform your WordPress site into a conversational interface for users and AI agents using Microsoft's NLWeb Protocol.
 
