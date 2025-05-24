@@ -1,5 +1,7 @@
 # 🤖 WPNLWeb - WordPress Natural Language Web Plugin
 
+<img src="https://wpnlweb.com/assets/banner-1544x500.png" alt="WPNLWeb Search Interface" />
+
 [![WordPress](https://img.shields.io/wordpress/plugin/v/wpnlweb.svg)](https://wordpress.org/plugins/wpnlweb/)
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-blue)](https://php.net/)
 [![WordPress](https://img.shields.io/badge/wordpress-%3E%3D5.0-blue)](https://wordpress.org/)
@@ -22,13 +24,13 @@
 
 ## 📸 Screenshots
 
-![WPNLWeb Search Interface](assets/screenshot-1.png)
+![WPNLWeb Search Interface](https://wpnlweb.com/assets/screenshot-1.png)
 _Natural language search interface_
 
-![Admin Dashboard](assets/screenshot-2.png)
+![Admin Dashboard](https://wpnlweb.com/assets/screenshot-2.png)
 _Settings and configuration panel_
 
-![API Response](assets/screenshot-3.png)
+![API Response](https://wpnlweb.com/assets/screenshot-3.png)
 _Schema.org compliant API responses_
 
 ## 🎯 Quick Start
