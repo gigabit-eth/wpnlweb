@@ -1,6 +1,6 @@
 # 🤖 WPNLWeb - WordPress Natural Language AI Plugin
 
-<img src="https://wpnlweb.com/assets/banner-1544x500.png" alt="WPNLWeb Search Interface" />
+<img src="https://wpnlweb.com/wp-content/uploads/2025/05/banner-1544x500-1.png" alt="WPNLWeb Search Interface" />
 
 [![WordPress](https://img.shields.io/wordpress/plugin/v/wpnlweb.svg)](https://wordpress.org/plugins/wpnlweb/)
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-blue)](https://php.net/)
@@ -23,13 +23,13 @@
 
 ## 📸 Screenshots
 
-![WPNLWeb Search Interface](https://wpnlweb.com/assets/screenshot-1.png)
+![WPNLWeb Search Interface](https://wpnlweb.com/wp-content/uploads/2025/05/screenshot-1.png)
 _Settings and configuration panel_
 
-![Admin Dashboard](https://wpnlweb.com/assets/screenshot-2.png)
+![Admin Dashboard](https://wpnlweb.com/wp-content/uploads/2025/05/screenshot-2.png)
 _Natural language search interface_
 
-![API Response](https://wpnlweb.com/assets/screenshot-3.png)
+![API Response](https://wpnlweb.com/wp-content/uploads/2025/05/screenshot-3.png)
 _Schema.org compliant API responses_
 
 ## 🎯 Quick Start
