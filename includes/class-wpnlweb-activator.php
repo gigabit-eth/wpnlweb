@@ -3,7 +3,7 @@
 /**
  * Fired during plugin activation
  *
- * @link       https://typewriter.sh
+ * @link       https://wpnlweb.com
  * @since      1.0.0
  *
  * @package    Wpnlweb
@@ -18,9 +18,10 @@
  * @since      1.0.0
  * @package    Wpnlweb
  * @subpackage Wpnlweb/includes
- * @author     TypeWriter <team@typewriter.sh>
+ * @author     wpnlweb <hey@wpnlweb.com>
  */
-class Wpnlweb_Activator {
+class Wpnlweb_Activator
+{
 
 	/**
 	 * Short Description. (use period)
@@ -29,8 +30,5 @@ class Wpnlweb_Activator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {
-
-	}
-
+	public static function activate() {}
 }

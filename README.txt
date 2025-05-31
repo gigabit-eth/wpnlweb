@@ -1,5 +1,5 @@
 === WPNLWeb ===
-Contributors: typewriter
+Contributors: wpnlweb
 Donate link: https://wpnlweb.com/donate
 Tags: ai, nlweb, artificial intelligence, natural language, nlp
 Requires at least: 5.0

@@ -6,7 +6,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       https://typewriter.sh
+ * @link       https://wpnlweb.com
  * @since      1.0.0
  *
  * @package    Wpnlweb
@@ -22,9 +22,10 @@
  * @since      1.0.0
  * @package    Wpnlweb
  * @subpackage Wpnlweb/includes
- * @author     TypeWriter <team@typewriter.sh>
+ * @author     wpnlweb <hey@wpnlweb.com>
  */
-class Wpnlweb_i18n {
+class Wpnlweb_i18n
+{
 
 
 	/**
@@ -32,16 +33,13 @@ class Wpnlweb_i18n {
 	 *
 	 * @since    1.0.0
 	 */
-	public function load_plugin_textdomain() {
+	public function load_plugin_textdomain()
+	{
 
 		load_plugin_textdomain(
 			'wpnlweb',
 			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
+			dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
 		);
-
 	}
-
-
-
 }

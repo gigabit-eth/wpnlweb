@@ -1,12 +1,12 @@
 {
-  "name": "typewriter/wpnlweb",
+  "name": "wpnlweb/wpnlweb",
   "description": "WordPress Natural Language Web Plugin",
   "type": "wordpress-plugin",
   "license": "GPL-2.0+",
   "authors": [
     {
-      "name": "TypeWriter",
-      "email": "team@typewriter.sh"
+      "name": "wpnlweb",
+      "email": "hey@wpnlweb.com"
     }
   ],
   "minimum-stability": "dev",

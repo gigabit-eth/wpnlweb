@@ -6,7 +6,7 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       https://typewriter.sh
+ * @link       https://wpnlweb.com
  * @since      1.0.0
  *
  * @package    Wpnlweb
@@ -25,7 +25,7 @@
  * @since      1.0.0
  * @package    Wpnlweb
  * @subpackage Wpnlweb/includes
- * @author     TypeWriter <team@typewriter.sh>
+ * @author     wpnlweb <hey@wpnlweb.com>
  */
 class Wpnlweb
 {

@@ -24,7 +24,7 @@ This project and everyone participating in it is governed by our commitment to c
 - **Focus on constructive feedback** and solutions
 - **Respect different viewpoints** and experiences
 
-Report any unacceptable behavior to [team@typewriter.sh](mailto:team@typewriter.sh).
+Report any unacceptable behavior to [hey@wpnlweb.com](mailto:hey@wpnlweb.com).
 
 ## 🚀 Getting Started
 
@@ -472,7 +472,7 @@ Contributors will be recognized in:
 
 - **GitHub Issues** - Bug reports and feature requests
 - **GitHub Discussions** - General questions and ideas
-- **Email** - [team@typewriter.sh](mailto:team@typewriter.sh)
+- **Email** - [hey@wpnlweb.com](mailto:hey@wpnlweb.com)
 - **WordPress.org Forum** - User support
 
 ### Getting Help
@@ -506,7 +506,7 @@ Contributors will be recognized in:
 Don't hesitate to ask! We're here to help:
 
 - **Technical Questions** - Create a GitHub Discussion
-- **Process Questions** - Email [team@typewriter.sh](mailto:team@typewriter.sh)
+- **Process Questions** - Email [hey@wpnlweb.com](mailto:hey@wpnlweb.com)
 - **Ideas and Feedback** - Open a GitHub Issue
 
 ---

@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 /**
  * The NLWeb server functionality of the plugin.
  *
- * @link       https://typewriter.sh
+ * @link       https://wpnlweb.com
  * @since      1.0.0
  *
  * @package    Wpnlweb
@@ -24,7 +24,7 @@ if (! defined('ABSPATH')) {
  * @since      1.0.0
  * @package    Wpnlweb
  * @subpackage Wpnlweb/includes
- * @author     TypeWriter <team@typewriter.sh>
+ * @author     wpnlweb <hey@wpnlweb.com>
  */
 class Wpnlweb_Server
 {
@@ -311,7 +311,7 @@ class Wpnlweb_Server
  * @since      1.0.0
  * @package    Wpnlweb
  * @subpackage Wpnlweb/includes
- * @author     TypeWriter <team@typewriter.sh>
+ * @author     wpnlweb <hey@wpnlweb.com>
  */
 class Wpnlweb_Enhanced_Query
 {

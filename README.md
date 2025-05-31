@@ -380,8 +380,8 @@ This project is licensed under the GPL v2 or later - see the [LICENSE.txt](LICEN
 
 - **Documentation**: [Official Docs](https://wpnlweb.com/docs)
 - **WordPress.org**: [Plugin Support Forum](https://wordpress.org/support/plugin/wpnlweb/)
-- **GitHub Issues**: [Report Bugs](https://github.com/typewriter/wpnlweb/issues)
-- **Email**: [team@typewriter.sh](mailto:team@typewriter.sh)
+- **GitHub Issues**: [Report Bugs](https://github.com/wpnlweb/wpnlweb/issues)
+- **Email**: [hey@wpnlweb.com](mailto:hey@wpnlweb.com)
 
 ---
 
@@ -389,6 +389,6 @@ This project is licensed under the GPL v2 or later - see the [LICENSE.txt](LICEN
 
 **[Website](https://wpnlweb.com)** • **[Documentation](https://wpnlweb.com/docs)** • **[WordPress.org](https://wordpress.org/plugins/wpnlweb/)** • **[Support](https://wordpress.org/support/plugin/wpnlweb/)**
 
-Made with ❤️ by [TypeWriter](https://typewriter.sh)
+Made with ❤️ by [wpnlweb](https://wpnlweb.com)
 
 </div>

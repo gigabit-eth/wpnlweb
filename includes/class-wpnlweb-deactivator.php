@@ -3,7 +3,7 @@
 /**
  * Fired during plugin deactivation
  *
- * @link       https://typewriter.sh
+ * @link       https://wpnlweb.com
  * @since      1.0.0
  *
  * @package    Wpnlweb
@@ -18,9 +18,10 @@
  * @since      1.0.0
  * @package    Wpnlweb
  * @subpackage Wpnlweb/includes
- * @author     TypeWriter <team@typewriter.sh>
+ * @author     wpnlweb <hey@wpnlweb.com>
  */
-class Wpnlweb_Deactivator {
+class Wpnlweb_Deactivator
+{
 
 	/**
 	 * Short Description. (use period)
@@ -29,8 +30,5 @@ class Wpnlweb_Deactivator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function deactivate() {
-
-	}
-
+	public static function deactivate() {}
 }

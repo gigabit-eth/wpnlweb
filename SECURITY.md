@@ -14,7 +14,7 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 ### How to Report
 
-1. **Email**: Send details to security@typewriter.sh
+1. **Email**: Send details to security@wpnlweb.sh
 2. **Subject**: Include "WPNLWeb Security" in the subject line
 3. **Include**:
    - Description of the vulnerability
@@ -64,7 +64,7 @@ Currently, we don't have a formal bug bounty program, but we appreciate responsi
 
 For security-related questions or concerns:
 
-- Email: security@typewriter.sh
-- Website: https://typewriter.sh/security
+- Email: security@wpnlweb.sh
+- Website: https://wpnlweb.com/security
 
 Thank you for helping keep WPNLWeb secure!

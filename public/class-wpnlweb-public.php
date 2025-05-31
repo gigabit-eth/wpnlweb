@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://typewriter.sh
+ * @link       https://wpnlweb.com
  * @since      1.0.0
  *
  * @package    Wpnlweb
@@ -23,7 +23,7 @@ if (! defined('ABSPATH')) {
  *
  * @package    Wpnlweb
  * @subpackage Wpnlweb/public
- * @author     TypeWriter <team@typewriter.sh>
+ * @author     wpnlweb <hey@wpnlweb.com>
  */
 class Wpnlweb_Public
 {

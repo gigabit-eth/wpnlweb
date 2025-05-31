@@ -1,4 +1,4 @@
-# Copyright (C) 2025 TypeWriter
+# Copyright (C) 2025 wpnlweb
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
@@ -32,12 +32,12 @@ msgstr ""
 
 #. Author of the plugin
 #: wpnlweb.php
-msgid "TypeWriter"
+msgid "wpnlweb"
 msgstr ""
 
 #. Author URI of the plugin
 #: wpnlweb.php
-msgid "https://typewriter.sh/"
+msgid "https://wpnlweb.com/"
 msgstr ""
 
 #: admin/class-wpnlweb-admin.php:79
