@@ -9,3 +9,8 @@ node_modules/
 composer.phar
 .phpunit.result.cache
 debug-api-test.php
+wpnlweb.code-workspace
+.cursor
+.cursorrules
+memory-bank/
+.vscode/

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fired during plugin deactivation
  *
@@ -20,8 +19,8 @@
  * @subpackage Wpnlweb/includes
  * @author     wpnlweb <hey@wpnlweb.com>
  */
-class Wpnlweb_Deactivator
-{
+class Wpnlweb_Deactivator {
+
 
 	/**
 	 * Short Description. (use period)

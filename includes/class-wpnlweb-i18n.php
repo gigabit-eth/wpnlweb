@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Define the internationalization functionality
  *
@@ -24,8 +23,8 @@
  * @subpackage Wpnlweb/includes
  * @author     wpnlweb <hey@wpnlweb.com>
  */
-class Wpnlweb_i18n
-{
+class Wpnlweb_I18n {
+
 
 
 	/**
@@ -33,13 +32,12 @@ class Wpnlweb_i18n
 	 *
 	 * @since    1.0.0
 	 */
-	public function load_plugin_textdomain()
-	{
+	public function load_plugin_textdomain() {
 
 		load_plugin_textdomain(
 			'wpnlweb',
 			false,
-			dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
+			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);
 	}
 }

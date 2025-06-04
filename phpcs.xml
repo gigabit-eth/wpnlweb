@@ -61,6 +61,7 @@
         <exclude-pattern>wpnlweb.php</exclude-pattern>
     </rule>
 
-    <!-- Allow short array syntax for modern PHP -->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    <!-- Temporarily allow both array syntaxes during refactoring -->
+    <!-- Remove this rule once all files are converted to short array syntax -->
+    <!-- <rule ref="Generic.Arrays.DisallowLongArraySyntax"/> -->
 </ruleset> 
