@@ -1,10 +1,4 @@
 <?php
-
-// If this file is called directly, abort.
-if (! defined('ABSPATH')) {
-	die;
-}
-
 /**
  * The public-facing functionality of the plugin.
  *
@@ -14,6 +8,11 @@ if (! defined('ABSPATH')) {
  * @package    Wpnlweb
  * @subpackage Wpnlweb/public
  */
+
+// If this file is called directly, abort.
+if ( ! defined( 'ABSPATH' ) ) {
+	die;
+}
 
 /**
  * The public-facing functionality of the plugin.
@@ -25,8 +24,8 @@ if (! defined('ABSPATH')) {
  * @subpackage Wpnlweb/public
  * @author     wpnlweb <hey@wpnlweb.com>
  */
-class Wpnlweb_Public
-{
+class Wpnlweb_Public {
+
 
 	/**
 	 * The ID of this plugin.
@@ -59,21 +58,20 @@ class Wpnlweb_Public
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of the plugin.
-	 * @param      string    $version    The version of this plugin.
+	 * @param      string $plugin_name       The name of the plugin.
+	 * @param      string $version    The version of this plugin.
 	 */
-	public function __construct($plugin_name, $version)
-	{
+	public function __construct( $plugin_name, $version ) {
 
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version     = $version;
 
-		// Register shortcode
-		add_action('init', array($this, 'register_shortcode'));
+		// Register shortcode.
+		add_action( 'init', array( $this, 'register_shortcode' ) );
 
-		// Register AJAX handlers
-		add_action('wp_ajax_wpnlweb_search', array($this, 'handle_ajax_search'));
-		add_action('wp_ajax_nopriv_wpnlweb_search', array($this, 'handle_ajax_search'));
+		// Register AJAX handlers.
+		add_action( 'wp_ajax_wpnlweb_search', array( $this, 'handle_ajax_search' ) );
+		add_action( 'wp_ajax_nopriv_wpnlweb_search', array( $this, 'handle_ajax_search' ) );
 	}
 
 	/**
@@ -81,81 +79,83 @@ class Wpnlweb_Public
 	 *
 	 * @since    1.0.0
 	 */
-	public function register_shortcode()
-	{
-		add_shortcode('wpnlweb', array($this, 'render_search_shortcode'));
+	public function register_shortcode() {
+		add_shortcode( 'wpnlweb', array( $this, 'render_search_shortcode' ) );
 	}
 
 	/**
 	 * Render the search shortcode
 	 *
 	 * @since    1.0.0
-	 * @param    array    $atts    Shortcode attributes
+	 * @param    array $atts    Shortcode attributes.
 	 * @return   string   HTML output for the search form
 	 */
-	public function render_search_shortcode($atts)
-	{
+	public function render_search_shortcode( $atts ) {
 
-		// Parse shortcode attributes
-		$atts = shortcode_atts(array(
-			'placeholder' => __('Ask a question about this site...', 'wpnlweb'),
-			'button_text' => __('Search', 'wpnlweb'),
-			'show_results' => 'true',
-			'max_results' => '10',
-			'class' => 'wpnlweb-search-form'
-		), $atts, 'wpnlweb');
+		// Parse shortcode attributes.
+		$atts = shortcode_atts(
+			array(
+				'placeholder'  => __( 'Ask a question about this site...', 'wpnlweb' ),
+				'button_text'  => __( 'Search', 'wpnlweb' ),
+				'show_results' => 'true',
+				'max_results'  => '10',
+				'class'        => 'wpnlweb-search-form',
+			),
+			$atts,
+			'wpnlweb'
+		);
 
-		// Enqueue assets only when shortcode is used
+		// Enqueue assets only when shortcode is used.
 		$this->enqueue_shortcode_assets();
 
-		// Generate unique form ID
-		$form_id = 'wpnlweb-form-' . uniqid();
+		// Generate unique form ID.
+		$form_id    = 'wpnlweb-form-' . uniqid();
 		$results_id = 'wpnlweb-results-' . uniqid();
 
-		// Build the search form HTML
+		// Build the search form HTML.
 		ob_start();
-?>
-		<div class="wpnlweb-search-container <?php echo esc_attr($atts['class']); ?>">
-			<form id="<?php echo esc_attr($form_id); ?>" class="wpnlweb-search-form" method="post">
+		?>
+		<div class="wpnlweb-search-container <?php echo esc_attr( $atts['class'] ); ?>">
+			<form id="<?php echo esc_attr( $form_id ); ?>" class="wpnlweb-search-form" method="post">
 				<div class="wpnlweb-search-input-wrapper">
 					<input
 						type="text"
 						name="wpnlweb_question"
 						class="wpnlweb-search-input"
-						placeholder="<?php echo esc_attr($atts['placeholder']); ?>"
+						placeholder="<?php echo esc_attr( $atts['placeholder'] ); ?>"
 						required />
 					<button type="submit" class="wpnlweb-search-button">
-						<?php echo esc_html($atts['button_text']); ?>
+						<?php echo esc_html( $atts['button_text'] ); ?>
 					</button>
 				</div>
 				<div class="wpnlweb-loading" style="display: none;">
 					<span class="wpnlweb-spinner"></span>
-					<?php esc_html_e('Searching...', 'wpnlweb'); ?>
+					<?php esc_html_e( 'Searching...', 'wpnlweb' ); ?>
 				</div>
-				<?php wp_nonce_field('wpnlweb_search_nonce', 'wpnlweb_nonce'); ?>
+				<?php wp_nonce_field( 'wpnlweb_search_nonce', 'wpnlweb_nonce' ); ?>
 			</form>
 
-			<?php if ($atts['show_results'] === 'true'): ?>
-				<div id="<?php echo esc_attr($results_id); ?>" class="wpnlweb-search-results" style="display: none;">
-					<h3 class="wpnlweb-results-title"><?php esc_html_e('Search Results', 'wpnlweb'); ?></h3>
+			<?php if ( 'true' === $atts['show_results'] ) : ?>
+				<div id="<?php echo esc_attr( $results_id ); ?>" class="wpnlweb-search-results" style="display: none;">
+					<h3 class="wpnlweb-results-title"><?php esc_html_e( 'Search Results', 'wpnlweb' ); ?></h3>
 					<div class="wpnlweb-results-content"></div>
 				</div>
 			<?php endif; ?>
 
 			<script type="text/javascript">
-				// Pass data to JavaScript
+				// Pass data to JavaScript.
 				window.wpnlweb_data = window.wpnlweb_data || {};
-				window.wpnlweb_data['<?php echo esc_js($form_id); ?>'] = {
-					form_id: '<?php echo esc_js($form_id); ?>',
-					results_id: '<?php echo esc_js($results_id); ?>',
-					max_results: <?php echo intval($atts['max_results']); ?>,
-					show_results: <?php echo $atts['show_results'] === 'true' ? 'true' : 'false'; ?>,
-					ajax_url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
-					nonce: '<?php echo esc_js(wp_create_nonce('wpnlweb_search_nonce')); ?>'
+				window.wpnlweb_data['<?php echo esc_js( $form_id ); ?>'] = {
+					form_id: '<?php echo esc_js( $form_id ); ?>',
+					results_id: '<?php echo esc_js( $results_id ); ?>',
+					max_results: <?php echo intval( $atts['max_results'] ); ?>,
+					show_results: <?php echo 'true' === $atts['show_results'] ? 'true' : 'false'; ?>,
+					ajax_url: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
+					nonce: '<?php echo esc_js( wp_create_nonce( 'wpnlweb_search_nonce' ) ); ?>'
 				};
 			</script>
 		</div>
-<?php
+		<?php
 		return ob_get_clean();
 	}
 
@@ -164,49 +164,48 @@ class Wpnlweb_Public
 	 *
 	 * @since    1.0.0
 	 */
-	public function handle_ajax_search()
-	{
+	public function handle_ajax_search() {
 
-		// Verify nonce
-		if (! wp_verify_nonce($_POST['wpnlweb_nonce'], 'wpnlweb_search_nonce')) {
-			wp_die(esc_html__('Security check failed', 'wpnlweb'));
+		// Verify nonce.
+		if ( ! isset( $_POST['wpnlweb_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpnlweb_nonce'] ) ), 'wpnlweb_search_nonce' ) ) {
+			wp_die( esc_html__( 'Security check failed', 'wpnlweb' ) );
 		}
 
-		// Get the question
-		$question = sanitize_text_field($_POST['question']);
-		$max_results = intval($_POST['max_results']) ?: 10;
+		// Get the question.
+		$question    = isset( $_POST['question'] ) ? sanitize_text_field( wp_unslash( $_POST['question'] ) ) : '';
+		$max_results = isset( $_POST['max_results'] ) ? intval( $_POST['max_results'] ) : 10;
 
-		if (empty($question)) {
-			wp_send_json_error(array('message' => esc_html__('Please enter a question', 'wpnlweb')));
+		if ( empty( $question ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Please enter a question', 'wpnlweb' ) ) );
 		}
 
-		// Use the existing NLWeb server logic
-		if (class_exists('Wpnlweb_Server')) {
+		// Use the existing NLWeb server logic.
+		if ( class_exists( 'Wpnlweb_Server' ) ) {
 
-			// Create a proper WP_REST_Request object
-			$request = new WP_REST_Request('POST');
-			$request->set_param('question', $question);
-			$request->set_param('context', array('limit' => $max_results));
+			// Create a proper WP_REST_Request object.
+			$request = new WP_REST_Request( 'POST' );
+			$request->set_param( 'question', $question );
+			$request->set_param( 'context', array( 'limit' => $max_results ) );
 
-			// Get the server instance and handle the request
-			$server = new Wpnlweb_Server('wpnlweb', WPNLWEB_VERSION);
-			$response = $server->handle_ask($request);
+			// Get the server instance and handle the request.
+			$server   = new Wpnlweb_Server( 'wpnlweb', WPNLWEB_VERSION );
+			$response = $server->handle_ask( $request );
 
-			// Check if response is WP_Error
-			if (is_wp_error($response)) {
-				wp_send_json_error(array('message' => $response->get_error_message()));
+			// Check if response is WP_Error.
+			if ( is_wp_error( $response ) ) {
+				wp_send_json_error( array( 'message' => $response->get_error_message() ) );
 			}
 
-			// Extract posts from the Schema.org response for frontend formatting
+			// Extract posts from the Schema.org response for frontend formatting.
 			$posts = array();
-			if (isset($response['items']) && is_array($response['items'])) {
-				// Convert Schema.org items back to post-like objects for consistent formatting
-				foreach ($response['items'] as $item) {
-					if (isset($item['@id'])) {
-						$post_id = url_to_postid($item['@id']);
-						if ($post_id) {
-							$post = get_post($post_id);
-							if ($post) {
+			if ( isset( $response['items'] ) && is_array( $response['items'] ) ) {
+				// Convert Schema.org items back to post-like objects for consistent formatting.
+				foreach ( $response['items'] as $item ) {
+					if ( isset( $item['@id'] ) ) {
+						$post_id = url_to_postid( $item['@id'] );
+						if ( $post_id ) {
+							$post = get_post( $post_id );
+							if ( $post ) {
 								$posts[] = $post;
 							}
 						}
@@ -214,15 +213,17 @@ class Wpnlweb_Public
 				}
 			}
 
-			// Format results for frontend display
-			$html_results = $this->format_search_results($posts, $question);
+			// Format results for frontend display.
+			$html_results = $this->format_search_results( $posts, $question );
 
-			wp_send_json_success(array(
-				'html' => $html_results,
-				'count' => count($posts)
-			));
+			wp_send_json_success(
+				array(
+					'html'  => $html_results,
+					'count' => count( $posts ),
+				)
+			);
 		} else {
-			wp_send_json_error(array('message' => esc_html__('Search functionality not available', 'wpnlweb')));
+			wp_send_json_error( array( 'message' => esc_html__( 'Search functionality not available', 'wpnlweb' ) ) );
 		}
 	}
 
@@ -230,40 +231,39 @@ class Wpnlweb_Public
 	 * Format search results for frontend display
 	 *
 	 * @since    1.0.0
-	 * @param    array     $posts     Array of post objects
-	 * @param    string    $question  Original search question
+	 * @param    array  $posts     Array of post objects.
+	 * @param    string $question  Original search question.
 	 * @return   string    HTML formatted results
 	 */
-	private function format_search_results($posts, $question)
-	{
+	private function format_search_results( $posts, $question ) {
 
-		if (empty($posts)) {
+		if ( empty( $posts ) ) {
 			return '<p class="wpnlweb-no-results">' .
 				/* translators: %s is the search query entered by the user */
-				sprintf(esc_html__('No results found for "%s"', 'wpnlweb'), esc_html($question)) .
+				sprintf( esc_html__( 'No results found for "%s"', 'wpnlweb' ), esc_html( $question ) ) .
 				'</p>';
 		}
 
 		$html = '<div class="wpnlweb-results-list">';
 
-		foreach ($posts as $post) {
+		foreach ( $posts as $post ) {
 			$html .= '<article class="wpnlweb-result-item">';
 			$html .= '<h4 class="wpnlweb-result-title">';
-			$html .= '<a href="' . esc_url(get_permalink($post->ID)) . '">';
-			$html .= esc_html($post->post_title);
+			$html .= '<a href="' . esc_url( get_permalink( $post->ID ) ) . '">';
+			$html .= esc_html( $post->post_title );
 			$html .= '</a>';
 			$html .= '</h4>';
 
 			$html .= '<div class="wpnlweb-result-excerpt">';
-			$html .= '<p>' . esc_html(wp_trim_words($post->post_content, 30)) . '</p>';
+			$html .= '<p>' . esc_html( wp_trim_words( $post->post_content, 30 ) ) . '</p>';
 			$html .= '</div>';
 
 			$html .= '<div class="wpnlweb-result-meta">';
 			$html .= '<span class="wpnlweb-result-date">' .
-				get_the_date('', $post->ID) .
+				get_the_date( '', $post->ID ) .
 				'</span>';
 			$html .= '<span class="wpnlweb-result-author"> by ' .
-				get_the_author_meta('display_name', $post->post_author) .
+				get_the_author_meta( 'display_name', $post->post_author ) .
 				'</span>';
 			$html .= '</div>';
 
@@ -280,30 +280,29 @@ class Wpnlweb_Public
 	 *
 	 * @since    1.0.0
 	 */
-	private function enqueue_shortcode_assets()
-	{
+	private function enqueue_shortcode_assets() {
 
-		if ($this->shortcode_assets_enqueued) {
+		if ( $this->shortcode_assets_enqueued ) {
 			return;
 		}
 
-		// Enqueue shortcode-specific CSS
+		// Enqueue shortcode-specific CSS.
 		wp_enqueue_style(
 			$this->plugin_name . '-shortcode',
-			plugin_dir_url(__FILE__) . 'css/wpnlweb-shortcode.css',
+			plugin_dir_url( __FILE__ ) . 'css/wpnlweb-shortcode.css',
 			array(),
 			$this->version,
 			'all'
 		);
 
-		// Add custom CSS if available
+		// Add custom CSS if available.
 		$this->add_custom_styles();
 
-		// Enqueue shortcode-specific JavaScript
+		// Enqueue shortcode-specific JavaScript.
 		wp_enqueue_script(
 			$this->plugin_name . '-shortcode',
-			plugin_dir_url(__FILE__) . 'js/wpnlweb-shortcode.js',
-			array('jquery'),
+			plugin_dir_url( __FILE__ ) . 'js/wpnlweb-shortcode.js',
+			array( 'jquery' ),
 			$this->version,
 			true
 		);
@@ -316,23 +315,22 @@ class Wpnlweb_Public
 	 *
 	 * @since    1.0.0
 	 */
-	private function add_custom_styles()
-	{
-		// Get custom CSS from WordPress options (if admin settings exist)
-		$custom_css = get_option('wpnlweb_custom_css', '');
+	private function add_custom_styles() {
+		// Get custom CSS from WordPress options (if admin settings exist).
+		$custom_css = get_option( 'wpnlweb_custom_css', '' );
 
-		// Allow themes and other plugins to modify custom CSS
-		$custom_css = apply_filters('wpnlweb_custom_css', $custom_css);
+		// Allow themes and other plugins to modify custom CSS.
+		$custom_css = apply_filters( 'wpnlweb_custom_css', $custom_css );
 
-		// If custom CSS exists, add it inline
-		if (!empty($custom_css)) {
-			wp_add_inline_style($this->plugin_name . '-shortcode', wp_strip_all_tags($custom_css));
+		// If custom CSS exists, add it inline.
+		if ( ! empty( $custom_css ) ) {
+			wp_add_inline_style( $this->plugin_name . '-shortcode', wp_strip_all_tags( $custom_css ) );
 		}
 
-		// Add theme-specific CSS variables for easy customization
+		// Add theme-specific CSS variables for easy customization.
 		$theme_vars = $this->get_theme_css_variables();
-		if (!empty($theme_vars)) {
-			wp_add_inline_style($this->plugin_name . '-shortcode', $theme_vars);
+		if ( ! empty( $theme_vars ) ) {
+			wp_add_inline_style( $this->plugin_name . '-shortcode', $theme_vars );
 		}
 	}
 
@@ -342,22 +340,21 @@ class Wpnlweb_Public
 	 * @since    1.0.0
 	 * @return   string    CSS variables for theme integration
 	 */
-	private function get_theme_css_variables()
-	{
-		// Get settings from admin options
-		$primary_color = get_option('wpnlweb_primary_color', '#3b82f6');
-		$theme_mode = get_option('wpnlweb_theme_mode', 'auto');
+	private function get_theme_css_variables() {
+		// Get settings from admin options.
+		$primary_color = get_option( 'wpnlweb_primary_color', '#3b82f6' );
+		$theme_mode    = get_option( 'wpnlweb_theme_mode', 'auto' );
 
-		// Allow themes to override these values via filters
-		$primary_color = apply_filters('wpnlweb_primary_color', $primary_color);
-		$secondary_color = apply_filters('wpnlweb_secondary_color', '#1f2937');
-		$background_color = apply_filters('wpnlweb_background_color', '#ffffff');
-		$text_color = apply_filters('wpnlweb_text_color', '#1f2937');
-		$border_radius = apply_filters('wpnlweb_border_radius', '8px');
+		// Allow themes to override these values via filters.
+		$primary_color    = apply_filters( 'wpnlweb_primary_color', $primary_color );
+		$secondary_color  = apply_filters( 'wpnlweb_secondary_color', '#1f2937' );
+		$background_color = apply_filters( 'wpnlweb_background_color', '#ffffff' );
+		$text_color       = apply_filters( 'wpnlweb_text_color', '#1f2937' );
+		$border_radius    = apply_filters( 'wpnlweb_border_radius', '8px' );
 
-		// Generate hover and active colors based on primary color
-		$primary_hover = $this->adjust_color_brightness($primary_color, -20);
-		$primary_active = $this->adjust_color_brightness($primary_color, -40);
+		// Generate hover and active colors based on primary color.
+		$primary_hover  = $this->adjust_color_brightness( $primary_color, -20 );
+		$primary_active = $this->adjust_color_brightness( $primary_color, -40 );
 
 		$css = ":root {
 			--wpnlweb-primary-color: {$primary_color};
@@ -369,9 +366,9 @@ class Wpnlweb_Public
 			--wpnlweb-border-radius: {$border_radius};
 		}";
 
-		// Add forced theme mode if not auto
-		if ($theme_mode === 'light') {
-			// Force light mode by overriding dark mode styles with higher specificity
+		// Add forced theme mode if not auto.
+		if ( 'light' === $theme_mode ) {
+			// Force light mode by overriding dark mode styles with higher specificity.
 			$css .= "
 			/* Force Light Mode Override */
 			.wpnlweb-search-container.wpnlweb-search-container {
@@ -445,9 +442,9 @@ class Wpnlweb_Public
 				color: #dc2626 !important;
 				border-color: #fecaca !important;
 			}";
-		} elseif ($theme_mode === 'dark') {
-			// Force dark mode styles
-			$css .= "
+		} elseif ( 'dark' === $theme_mode ) {
+			// Force dark mode styles.
+			$css .= '
 			/* Force Dark Mode Override */
 			.wpnlweb-search-container.wpnlweb-search-container {
 				background: #1f2937 !important;
@@ -519,7 +516,7 @@ class Wpnlweb_Public
 				background: #7f1d1d !important;
 				color: #fca5a5 !important;
 				border-color: #991b1b !important;
-			}";
+			}';
 		}
 
 		return $css;
@@ -529,27 +526,26 @@ class Wpnlweb_Public
 	 * Adjust color brightness for hover/active states
 	 *
 	 * @since    1.0.0
-	 * @param    string    $hex_color    Hex color code
-	 * @param    int       $percent      Percentage to adjust (-100 to 100)
+	 * @param    string $hex_color    Hex color code.
+	 * @param    int    $percent      Percentage to adjust (-100 to 100).
 	 * @return   string    Adjusted hex color
 	 */
-	private function adjust_color_brightness($hex_color, $percent)
-	{
-		// Remove # if present
-		$hex_color = ltrim($hex_color, '#');
+	private function adjust_color_brightness( $hex_color, $percent ) {
+		// Remove # if present.
+		$hex_color = ltrim( $hex_color, '#' );
 
-		// Convert to RGB
-		$r = hexdec(substr($hex_color, 0, 2));
-		$g = hexdec(substr($hex_color, 2, 2));
-		$b = hexdec(substr($hex_color, 4, 2));
+		// Convert to RGB.
+		$r = hexdec( substr( $hex_color, 0, 2 ) );
+		$g = hexdec( substr( $hex_color, 2, 2 ) );
+		$b = hexdec( substr( $hex_color, 4, 2 ) );
 
-		// Adjust brightness
-		$r = max(0, min(255, $r + ($r * $percent / 100)));
-		$g = max(0, min(255, $g + ($g * $percent / 100)));
-		$b = max(0, min(255, $b + ($b * $percent / 100)));
+		// Adjust brightness.
+		$r = max( 0, min( 255, $r + ( $r * $percent / 100 ) ) );
+		$g = max( 0, min( 255, $g + ( $g * $percent / 100 ) ) );
+		$b = max( 0, min( 255, $b + ( $b * $percent / 100 ) ) );
 
-		// Convert back to hex
-		return sprintf('#%02x%02x%02x', $r, $g, $b);
+		// Convert back to hex.
+		return sprintf( '#%02x%02x%02x', $r, $g, $b );
 	}
 
 	/**
@@ -557,8 +553,7 @@ class Wpnlweb_Public
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles()
-	{
+	public function enqueue_styles() {
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -572,7 +567,7 @@ class Wpnlweb_Public
 		 * class.
 		 */
 
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wpnlweb-public.css', array(), $this->version, 'all');
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wpnlweb-public.css', array(), $this->version, 'all' );
 	}
 
 	/**
@@ -580,8 +575,7 @@ class Wpnlweb_Public
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts()
-	{
+	public function enqueue_scripts() {
 
 		/**
 		 * This function is provided for demonstration purposes only.
@@ -595,6 +589,6 @@ class Wpnlweb_Public
 		 * class.
 		 */
 
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/wpnlweb-public.js', array('jquery'), $this->version, false);
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpnlweb-public.js', array( 'jquery' ), $this->version, false );
 	}
 }

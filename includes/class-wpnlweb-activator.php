@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fired during plugin activation
  *
@@ -20,8 +19,8 @@
  * @subpackage Wpnlweb/includes
  * @author     wpnlweb <hey@wpnlweb.com>
  */
-class Wpnlweb_Activator
-{
+class Wpnlweb_Activator {
+
 
 	/**
 	 * Short Description. (use period)

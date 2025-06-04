@@ -79,6 +79,11 @@
   ],
   "intelephense.files.associations": ["*.php", "*.phtml"],
   "intelephense.files.exclude": ["**/node_modules/**", "**/vendor/**"],
+  "intelephense.environment.includePaths": [
+    "/Users/lloydfaulk/Local Sites/wpnlwebcom/app/public/wp-includes",
+    "/Users/lloydfaulk/Local Sites/wpnlwebcom/app/public/wp-admin/includes",
+    "/Users/lloydfaulk/Local Sites/wpnlwebcom/app/public"
+  ],
   "files.associations": {
     "*.php": "php"
   },
@@ -87,5 +92,16 @@
   },
   "phpcs.enable": true,
   "phpcs.standard": "phpcs.xml",
-  "phpcs.executablePath": "./vendor/bin/phpcs"
+  "phpcs.executablePath": "./vendor/bin/phpcs",
+  "phpcs.showWarnings": false,
+  "phpcs.showSources": false,
+  "editor.formatOnSave": false,
+  "php.format.enable": false,
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.phpcs": "never"
+    }
+  }
 }
