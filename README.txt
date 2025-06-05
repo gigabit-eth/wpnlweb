@@ -5,7 +5,7 @@ Tags: ai, nlweb, artificial intelligence, natural language, nlp
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -221,6 +221,13 @@ Yes! The admin dashboard includes usage statistics showing total queries, respon
 
 == Changelog ==
 
+= 1.0.2 =
+* Code quality improvements and WordPress Coding Standards compliance
+* Enhanced file structure and organization
+* Performance optimizations
+* Security improvements with proper input sanitization
+* Fixed all linting issues for production readiness
+
 = 1.0.0 =
 * Initial release
 * NLWeb protocol implementation with REST API endpoint
@@ -234,20 +241,11 @@ Yes! The admin dashboard includes usage statistics showing total queries, respon
 
 == Upgrade Notice ==
 
+= 1.0.2 =
+Security improvements and WordPress Coding Standards compliance. Enhanced nonce verification, input validation, and production-ready code quality fixes.
+
 = 1.0.0 =
-**Major Release**: WPNLWeb 1.0.0 brings professional AI integration to WordPress! This production-ready release includes:
-
-**AI Agent Ready**: Full NLWeb protocol implementation with Schema.org compliant responses - connect ChatGPT, Claude, and other AI systems to your content instantly.
-
-**Beautiful Search Interface**: Modern, responsive shortcode with customizable themes, color picker, and live preview functionality.
-
-**Performance Optimized**: Sub-500ms response times with intelligent caching, CORS support, and WordPress standards compliance.
-
-**Enterprise Security**: Input sanitization, nonce verification, rate limiting, and WordPress.org submission-ready code quality.
-
-**Theme Customization**: Built-in admin settings with color picker, custom CSS editor, and automatic dark/light mode detection.
-
-Install now to transform your WordPress site into an AI-accessible knowledge base that both visitors and AI agents can query using natural language!
+Major Release! AI-power your WordPress with NLWeb protocol. Connect ChatGPT, Claude & AI agents to your content. Modern search interface, sub-500ms performance, enterprise security. Transform your site into an AI-accessible knowledge base!
 
 == Developer Information ==
 

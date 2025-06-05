@@ -258,7 +258,7 @@ class Wpnlweb_Admin_Settings {
 	 */
 	public function get_preset_colors() {
 		return array(
-			'#3b82f6', // Blue (default).
+			'#3b82f6', // Blue - default.
 			'#ef4444', // Red.
 			'#10b981', // Green.
 			'#f59e0b', // Orange.

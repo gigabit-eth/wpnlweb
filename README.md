@@ -342,7 +342,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 🗺️ Roadmap
 
-### Version 1.1 (Planned)
+### Version 1.1 (In-Progress)
 
 - [ ] Advanced search filters and faceting
 - [ ] Qdrant Vector Embeddings
