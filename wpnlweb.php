@@ -15,7 +15,7 @@
  * Plugin Name:       WPNLWeb
  * Plugin URI:        https://wpnlweb.com
  * Description:       Turn your WordPress site into a natural language interface for users, and AI agents using Microsoft's NLWeb Protocol.
- * Version:           1.0.0
+ * Version:           1.0.2
  * Author:            WPNLWeb
  * Author URI:        https://wpnlweb.com/
  * License:           GPL-2.0+
@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'WPNLWEB_VERSION', '1.0.0' );
+define( 'WPNLWEB_VERSION', '1.0.2' );
 
 /**
  * The code that runs during plugin activation.

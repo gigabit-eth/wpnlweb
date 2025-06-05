@@ -70,7 +70,7 @@ class Wpnlweb {
 		if ( defined( 'WPNLWEB_VERSION' ) ) {
 			$this->version = WPNLWEB_VERSION;
 		} else {
-			$this->version = '1.0.0';
+			$this->version = '1.0.2';
 		}
 		$this->plugin_name = 'wpnlweb';
 

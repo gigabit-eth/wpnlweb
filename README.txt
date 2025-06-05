@@ -5,7 +5,7 @@ Tags: ai, nlweb, artificial intelligence, natural language, nlp
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -221,6 +221,13 @@ Yes! The admin dashboard includes usage statistics showing total queries, respon
 
 == Changelog ==
 
+= 1.0.2 =
+* WordPress.org submission preparation
+* Code standards compliance improvements
+* Enhanced documentation and comments
+* Version number synchronization across all files
+* Bug fixes and stability improvements
+
 = 1.0.0 =
 * Initial release
 * NLWeb protocol implementation with REST API endpoint
@@ -233,6 +240,9 @@ Yes! The admin dashboard includes usage statistics showing total queries, respon
 * WordPress.org compliance and standards
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Pre-release refinements: Enhanced code standards compliance, improved documentation, and bug fixes in preparation for WordPress.org plugin directory submission.
 
 = 1.0.0 =
 Major Release: Transform your WordPress site into an AI-accessible knowledge base! Features NLWeb protocol implementation, modern search interface, performance optimization, and enterprise security. Connect ChatGPT, Claude, and other AI systems instantly.
