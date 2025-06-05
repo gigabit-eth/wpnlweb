@@ -68,8 +68,9 @@ class Wpnlweb_Admin {
 		// AJAX handlers for live preview.
 		add_action( 'wp_ajax_wpnlweb_preview_shortcode', array( $this, 'handle_preview_shortcode' ) );
 
-		// Add settings link to plugins page.
-		add_filter( 'plugin_action_links_wpnlweb/wpnlweb.php', array( $this, 'add_settings_link' ) );
+		// Add settings link to plugins page - use plugin_basename() for dynamic path.
+		$plugin_file = plugin_dir_path( __DIR__ ) . 'wpnlweb.php';
+		add_filter( 'plugin_action_links_' . plugin_basename( $plugin_file ), array( $this, 'add_settings_link' ) );
 	}
 
 	/**
@@ -395,7 +396,7 @@ class Wpnlweb_Admin {
 		$js_exists  = file_exists( $js_file_path );
 
 		// Show diagnostic info if styles aren't loading properly.
-		$show_diagnostic = ! $css_exists || isset( $_GET['debug'] );
+		$show_diagnostic = ! $css_exists;
 		?>
 
 		<div class="wrap">
@@ -443,7 +444,7 @@ class Wpnlweb_Admin {
 						</div>
 					<?php endif; ?>
 
-					<p><em>To hide this diagnostic info once files are working, remove <code>?debug</code> from the URL.</em></p>
+					<p><em>This diagnostic information appears when CSS/JS files are missing to help with troubleshooting.</em></p>
 				</div>
 			<?php endif; ?>
 
@@ -1207,7 +1208,7 @@ class Wpnlweb_Admin {
 
 	/**
 	 * Register the JavaScript for the admin area.
-	 *
+	 * 
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
@@ -1222,7 +1223,7 @@ class Wpnlweb_Admin {
 	 * @return   array    Modified array of plugin action links
 	 */
 	public function add_settings_link( $links ) {
-		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=wpnlweb-settings' ) ) . '">' . __( 'Settings', 'wpnlweb' ) . '</a>';
+		$settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=wpnlweb-settings' ) ) . '">' . __( 'Settings', 'wpnlweb' ) . '</a>';
 		array_unshift( $links, $settings_link );
 		return $links;
 	}

@@ -235,19 +235,7 @@ Yes! The admin dashboard includes usage statistics showing total queries, respon
 == Upgrade Notice ==
 
 = 1.0.0 =
-**Major Release**: WPNLWeb 1.0.0 brings professional AI integration to WordPress! This production-ready release includes:
-
-**AI Agent Ready**: Full NLWeb protocol implementation with Schema.org compliant responses - connect ChatGPT, Claude, and other AI systems to your content instantly.
-
-**Beautiful Search Interface**: Modern, responsive shortcode with customizable themes, color picker, and live preview functionality.
-
-**Performance Optimized**: Sub-500ms response times with intelligent caching, CORS support, and WordPress standards compliance.
-
-**Enterprise Security**: Input sanitization, nonce verification, rate limiting, and WordPress.org submission-ready code quality.
-
-**Theme Customization**: Built-in admin settings with color picker, custom CSS editor, and automatic dark/light mode detection.
-
-Install now to transform your WordPress site into an AI-accessible knowledge base that both visitors and AI agents can query using natural language!
+Major Release: Transform your WordPress site into an AI-accessible knowledge base! Features NLWeb protocol implementation, modern search interface, performance optimization, and enterprise security. Connect ChatGPT, Claude, and other AI systems instantly.
 
 == Developer Information ==
 
