@@ -62,6 +62,15 @@ class Wpnlweb_License_Manager {
 	private $edd;
 
 	/**
+	 * Addon Manager instance.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @var    Wpnlweb_Addon_Manager
+	 */
+	private $addon_manager;
+
+	/**
 	 * Current license data.
 	 *
 	 * @since  1.1.0
@@ -92,6 +101,7 @@ class Wpnlweb_License_Manager {
 		require_once plugin_dir_path( __FILE__ ) . 'class-wpnlweb-license-cache.php';
 		require_once plugin_dir_path( __FILE__ ) . 'class-wpnlweb-license-tiers.php';
 		require_once plugin_dir_path( __FILE__ ) . 'class-wpnlweb-edd-integration.php';
+		require_once plugin_dir_path( __FILE__ ) . 'class-wpnlweb-addon-manager.php';
 	}
 
 	/**
@@ -101,10 +111,11 @@ class Wpnlweb_License_Manager {
 	 * @access private
 	 */
 	private function init_components() {
-		$this->cache     = new Wpnlweb_License_Cache();
-		$this->edd       = new Wpnlweb_Edd_Integration();
-		$this->validator = new Wpnlweb_License_Validator( $this->cache, $this->edd );
-		$this->tiers     = new Wpnlweb_License_Tiers();
+		$this->cache         = new Wpnlweb_License_Cache();
+		$this->edd           = new Wpnlweb_Edd_Integration();
+		$this->validator     = new Wpnlweb_License_Validator( $this->cache, $this->edd );
+		$this->tiers         = new Wpnlweb_License_Tiers();
+		$this->addon_manager = new Wpnlweb_Addon_Manager( $this->edd, $this->cache );
 	}
 
 	/**
@@ -167,8 +178,14 @@ class Wpnlweb_License_Manager {
 	 * @return string Current license tier (free, pro, enterprise, agency).
 	 */
 	public function get_tier() {
-		$license = $this->get_license();
-		return isset( $license['tier'] ) ? $license['tier'] : 'free';
+		// Get current license status.
+		$license = $this->validator->get_license_status();
+
+		if ( ! $license || ! isset( $license['tier'] ) ) {
+			return 'free';
+		}
+
+		return $license['tier'];
 	}
 
 	/**
@@ -183,49 +200,58 @@ class Wpnlweb_License_Manager {
 	}
 
 	/**
-	 * Activate license with provided license key.
+	 * Activate license.
 	 *
 	 * @since  1.1.0
-	 * @param  string $license_key License key to activate.
-	 * @return array  Activation result with success status and message.
+	 * @param  string $license_key License key.
+	 * @return array  Activation result.
 	 */
 	public function activate_license( $license_key ) {
-		$result = $this->validator->activate( $license_key );
+		if ( empty( $license_key ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'License key is required.', 'wpnlweb' ),
+			);
+		}
+
+		$result = $this->validator->activate_license( $license_key );
 
 		if ( $result['success'] ) {
+			// Clear cache to force fresh validation.
 			$this->cache->invalidate_license();
-			$this->current_license = null;
 			
 			/**
 			 * Fires when license is successfully activated.
 			 *
 			 * @since 1.1.0
-			 * @param array $result License activation result.
+			 * @param string $license_key Activated license key.
+			 * @param array  $result      Activation result.
 			 */
-			do_action( 'wpnlweb_license_activated', $result );
+			do_action( 'wpnlweb_license_activated', $license_key, $result );
 		}
 
 		return $result;
 	}
 
 	/**
-	 * Deactivate current license.
+	 * Deactivate license.
 	 *
 	 * @since  1.1.0
-	 * @return array Deactivation result with success status and message.
+	 * @return array Deactivation result.
 	 */
 	public function deactivate_license() {
-		$result = $this->validator->deactivate();
+		$result = $this->validator->deactivate_license();
 
 		if ( $result['success'] ) {
+			// Clear all cached data.
 			$this->cache->invalidate_license();
-			$this->current_license = null;
+			$this->addon_manager->clear_addon_cache();
 			
 			/**
 			 * Fires when license is successfully deactivated.
 			 *
 			 * @since 1.1.0
-			 * @param array $result License deactivation result.
+			 * @param array $result Deactivation result.
 			 */
 			do_action( 'wpnlweb_license_deactivated', $result );
 		}
@@ -249,7 +275,7 @@ class Wpnlweb_License_Manager {
 		}
 
 		// Cache miss - validate with EDD and cache result.
-		$license = $this->validator->validate();
+		$license = $this->validator->get_license_status();
 		
 		if ( ! empty( $license ) ) {
 			$this->cache->set_license( $license );
@@ -284,7 +310,7 @@ class Wpnlweb_License_Manager {
 		}
 
 		// Validate current license status with EDD.
-		$updated_license = $this->validator->validate( true ); // Force remote check.
+		$updated_license = $this->validator->get_license_status(); // Get fresh status
 		
 		if ( ! empty( $updated_license ) && $updated_license !== $current_license ) {
 			$this->cache->set_license( $updated_license );
@@ -379,5 +405,69 @@ class Wpnlweb_License_Manager {
 		}
 
 		return $stats;
+	}
+
+	/**
+	 * Get addon manager instance.
+	 *
+	 * @since  1.1.0
+	 * @return Wpnlweb_Addon_Manager Addon manager instance.
+	 */
+	public function get_addon_manager() {
+		return $this->addon_manager;
+	}
+
+	/**
+	 * Get current license status.
+	 *
+	 * @since  1.1.0
+	 * @return array License status information.
+	 */
+	public function get_license_status() {
+		// Try cache first.
+		$cached_license = $this->cache->get_license();
+		
+		if ( false !== $cached_license ) {
+			return $cached_license;
+		}
+
+		// Get fresh status from validator.
+		$status = $this->validator->get_license_status();
+		
+		// Cache the status.
+		if ( ! empty( $status ) ) {
+			$this->cache->set_license( $status );
+		}
+
+		return $status;
+	}
+
+	/**
+	 * Refresh license from server.
+	 *
+	 * @since  1.1.0
+	 * @return array Updated license data.
+	 */
+	public function refresh_license() {
+		// Clear cache first.
+		$this->cache->invalidate_license();
+		
+		// Force fresh validation.
+		$updated_license = $this->validator->get_license_status(); // Get fresh status
+
+		if ( ! empty( $updated_license ) ) {
+			$this->cache->set_license( $updated_license );
+			$this->current_license = $updated_license;
+
+			/**
+			 * Fires when license is refreshed.
+			 *
+			 * @since 1.1.0
+			 * @param array $license_data Updated license data.
+			 */
+			do_action( 'wpnlweb_license_refreshed', $updated_license );
+		}
+
+		return $updated_license;
 	}
 } 

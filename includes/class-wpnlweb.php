@@ -58,6 +58,15 @@ class Wpnlweb {
 	protected $version;
 
 	/**
+	 * The server integration coordinator.
+	 *
+	 * @since    1.0.3
+	 * @access   protected
+	 * @var      Wpnlweb_Server_Integration    $server_integration    The server integration instance.
+	 */
+	protected $server_integration;
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -79,6 +88,7 @@ class Wpnlweb {
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 		$this->define_server_hooks();
+		$this->define_integration_hooks();
 	}
 
 	/**
@@ -91,6 +101,9 @@ class Wpnlweb {
 	 * - Wpnlweb_Admin. Defines all hooks for the admin area.
 	 * - Wpnlweb_Public. Defines all hooks for the public side of the site.
 	 * - Wpnlweb_Server. Defines the NLWeb protocol server functionality.
+	 * - Wpnlweb_Auth_Manager. Handles FastAPI server authentication.
+	 * - Wpnlweb_Api_Client. Manages HTTP communication with FastAPI server.
+	 * - Wpnlweb_Server_Integration. Coordinates server integration.
 	 *
 	 * Create an instance of the loader which will be used to register the hooks
 	 * with WordPress.
@@ -127,6 +140,13 @@ class Wpnlweb {
 		 * The class responsible for the NLWeb server functionality.
 		 */
 		require_once plugin_dir_path( __DIR__ ) . 'includes/class-wpnlweb-server.php';
+
+		/**
+		 * FastAPI Server Integration Classes
+		 */
+		require_once plugin_dir_path( __DIR__ ) . 'includes/api/class-wpnlweb-auth-manager.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/api/class-wpnlweb-api-client.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/api/class-wpnlweb-server-integration.php';
 
 		$this->loader = new Wpnlweb_Loader();
 	}
@@ -188,6 +208,21 @@ class Wpnlweb {
 		$plugin_server = new Wpnlweb_Server( $this->get_plugin_name(), $this->get_version() );
 
 		// The server class registers its own hooks in the constructor.
+		// No additional hook registration needed here.
+	}
+
+	/**
+	 * Register all of the hooks related to the integration functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.3
+	 * @access   private
+	 */
+	private function define_integration_hooks() {
+		// Initialize server integration coordinator.
+		$this->server_integration = new Wpnlweb_Server_Integration();
+		
+		// The server integration class registers its own hooks in the constructor.
 		// No additional hook registration needed here.
 	}
 

@@ -44,6 +44,15 @@ class Wpnlweb_Feature_Gates {
 	private $registry;
 
 	/**
+	 * Addon Manager instance.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @var    Wpnlweb_Addon_Manager
+	 */
+	private $addon_manager;
+
+	/**
 	 * Denied features cache.
 	 *
 	 * @since  1.1.0
@@ -58,10 +67,12 @@ class Wpnlweb_Feature_Gates {
 	 * @since 1.1.0
 	 * @param Wpnlweb_License_Manager  $license_manager License manager instance.
 	 * @param Wpnlweb_Feature_Registry $registry        Feature registry instance.
+	 * @param Wpnlweb_Addon_Manager    $addon_manager   Addon manager instance.
 	 */
-	public function __construct( $license_manager, $registry ) {
+	public function __construct( $license_manager, $registry, $addon_manager = null ) {
 		$this->license_manager = $license_manager;
 		$this->registry        = $registry;
+		$this->addon_manager   = $addon_manager;
 		$this->setup_hooks();
 	}
 
@@ -110,7 +121,57 @@ class Wpnlweb_Feature_Gates {
 			return false;
 		}
 
-		// Check license tier access.
+		// Check if feature requires addon access.
+		$addon_id = $this->get_feature_addon_requirement( $feature );
+		
+		if ( $addon_id && $this->addon_manager ) {
+			// Feature requires addon - check both base tier and addon access.
+			$base_tier = $this->license_manager->get_tier();
+			$has_addon_access = $this->addon_manager->validate_addon_access( $addon_id, $base_tier );
+			
+			if ( ! $has_addon_access ) {
+				$this->denied_cache[ $cache_key ] = true;
+				
+				/**
+				 * Fires when addon feature access is denied.
+				 *
+				 * @since 1.1.0
+				 * @param string $feature  Feature that was denied.
+				 * @param string $addon_id Required addon.
+				 * @param int    $user_id  User ID that was denied.
+				 * @param string $reason   Reason for denial.
+				 */
+				do_action( 'wpnlweb_addon_feature_access_denied', $feature, $addon_id, $user_id, 'addon_required' );
+				return false;
+			}
+			
+			// For credit-based addons, check credit availability.
+			if ( $this->is_credit_based_feature( $feature, $addon_id ) ) {
+				$credit_balance = $this->addon_manager->get_credit_balance( $addon_id );
+				$credit_cost = $this->get_feature_credit_cost( $feature, $addon_id );
+				
+				if ( $credit_balance < $credit_cost ) {
+					$this->denied_cache[ $cache_key ] = true;
+					
+					/**
+					 * Fires when feature access denied due to insufficient credits.
+					 *
+					 * @since 1.1.0
+					 * @param string $feature      Feature that was denied.
+					 * @param string $addon_id     Required addon.
+					 * @param int    $user_id      User ID that was denied.
+					 * @param int    $credit_cost  Required credits.
+					 * @param int    $balance      Current balance.
+					 */
+					do_action( 'wpnlweb_insufficient_credits_access_denied', $feature, $addon_id, $user_id, $credit_cost, $credit_balance );
+					return false;
+				}
+			}
+			
+			return true; // Addon access granted.
+		}
+
+		// Check standard license tier access for base features.
 		$has_access = $this->license_manager->validate_feature_access( $feature );
 
 		if ( ! $has_access ) {
@@ -461,5 +522,186 @@ class Wpnlweb_Feature_Gates {
 		}
 
 		return $can_access;
+	}
+
+	/**
+	 * Get addon requirement for feature.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @param  string $feature Feature identifier.
+	 * @return string|null Addon ID if feature requires addon, null otherwise.
+	 */
+	private function get_feature_addon_requirement( $feature ) {
+		// Define feature-to-addon mapping.
+		$addon_features = array(
+			// Automation Agents addon features.
+			'content_automation'   => 'automation_agents',
+			'bulk_operations'      => 'automation_agents',
+			'workflow_triggers'    => 'automation_agents',
+			
+			// AI Content Generation addon features.
+			'ai_writing'           => 'ai_content_generation',
+			'seo_optimization'     => 'ai_content_generation',
+			'content_enhancement'  => 'ai_content_generation',
+			
+			// Advanced Analytics addon features.
+			'custom_reports'       => 'advanced_analytics',
+			'data_export'          => 'advanced_analytics',
+			'advanced_insights'    => 'advanced_analytics',
+			'real_time_analytics'  => 'advanced_analytics',
+		);
+
+		/**
+		 * Filter feature-to-addon mapping.
+		 *
+		 * @since 1.1.0
+		 * @param array  $addon_features Feature to addon mapping.
+		 * @param string $feature        Current feature being checked.
+		 */
+		$addon_features = apply_filters( 'wpnlweb_feature_addon_mapping', $addon_features, $feature );
+
+		return isset( $addon_features[ $feature ] ) ? $addon_features[ $feature ] : null;
+	}
+
+	/**
+	 * Check if feature is credit-based.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @param  string $feature  Feature identifier.
+	 * @param  string $addon_id Addon identifier.
+	 * @return bool   True if feature is credit-based.
+	 */
+	private function is_credit_based_feature( $feature, $addon_id ) {
+		if ( ! $this->addon_manager ) {
+			return false;
+		}
+
+		$addon_config = $this->addon_manager->get_addon_config( $addon_id );
+		
+		if ( ! $addon_config || 'credit_based' !== $addon_config['type'] ) {
+			return false;
+		}
+
+		// Check if this specific feature has credit costs defined.
+		return isset( $addon_config['credit_cost'] ) && is_array( $addon_config['credit_cost'] );
+	}
+
+	/**
+	 * Get credit cost for feature operation.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @param  string $feature  Feature identifier.
+	 * @param  string $addon_id Addon identifier.
+	 * @return int    Credit cost for feature access.
+	 */
+	private function get_feature_credit_cost( $feature, $addon_id ) {
+		if ( ! $this->addon_manager ) {
+			return 0;
+		}
+
+		$addon_config = $this->addon_manager->get_addon_config( $addon_id );
+		
+		if ( ! $addon_config || ! isset( $addon_config['credit_cost'] ) ) {
+			return 0;
+		}
+
+		// Map feature to credit cost operation.
+		$feature_cost_mapping = array(
+			// Automation Agents features.
+			'content_automation' => 'content_generation',
+			'bulk_operations'    => 'bulk_operation',
+			'workflow_triggers'  => 'workflow_trigger',
+			
+			// AI Content Generation features.
+			'ai_writing'         => 'generate_post',
+			'seo_optimization'   => 'seo_optimization',
+			'content_enhancement' => 'content_rewrite',
+		);
+
+		/**
+		 * Filter feature to credit cost operation mapping.
+		 *
+		 * @since 1.1.0
+		 * @param array  $feature_cost_mapping Feature to cost operation mapping.
+		 * @param string $feature              Current feature.
+		 * @param string $addon_id             Addon identifier.
+		 */
+		$feature_cost_mapping = apply_filters( 'wpnlweb_feature_credit_cost_mapping', $feature_cost_mapping, $feature, $addon_id );
+
+		$cost_operation = isset( $feature_cost_mapping[ $feature ] ) ? $feature_cost_mapping[ $feature ] : $feature;
+		
+		return isset( $addon_config['credit_cost'][ $cost_operation ] ) ? 
+			intval( $addon_config['credit_cost'][ $cost_operation ] ) : 0;
+	}
+
+	/**
+	 * Get addon-aware upgrade prompt for denied feature.
+	 *
+	 * @since  1.1.0
+	 * @param  string $feature Feature identifier.
+	 * @return array  Upgrade prompt information including addon details.
+	 */
+	public function get_addon_upgrade_prompt( $feature ) {
+		$addon_id = $this->get_feature_addon_requirement( $feature );
+		
+		if ( $addon_id && $this->addon_manager ) {
+			$addon_config = $this->addon_manager->get_addon_config( $addon_id );
+			$base_tier = $this->license_manager->get_tier();
+			$pricing = $this->addon_manager->get_addon_pricing( $addon_id, $base_tier );
+			
+			return array(
+				'type'          => 'addon',
+				'feature'       => $feature,
+				'feature_name'  => $feature, // TODO: Get from feature registry.
+				'addon_id'      => $addon_id,
+				'addon_name'    => $addon_config['name'],
+				'addon_description' => $addon_config['description'],
+				'current_tier'  => $base_tier,
+				'required_tier' => $addon_config['required_tier'],
+				'pricing'       => $pricing,
+				'upgrade_url'   => $pricing['purchase_url'] ?? '',
+				'message'       => $this->get_addon_upgrade_message( $feature, $addon_config ),
+			);
+		}
+
+		// Fallback to standard tier upgrade prompt.
+		return $this->get_upgrade_prompt( $feature );
+	}
+
+	/**
+	 * Get addon upgrade message for feature.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @param  string $feature      Feature identifier.
+	 * @param  array  $addon_config Addon configuration.
+	 * @return string Addon upgrade message.
+	 */
+	private function get_addon_upgrade_message( $feature, $addon_config ) {
+		$base_tier = $this->license_manager->get_tier();
+		$required_tier = $addon_config['required_tier'];
+		
+		// Check if user needs tier upgrade first.
+		$tier_hierarchy = array( 'free' => 0, 'pro' => 1, 'enterprise' => 2, 'agency' => 3 );
+		
+		if ( $tier_hierarchy[ $base_tier ] < $tier_hierarchy[ $required_tier ] ) {
+			return sprintf(
+				/* translators: %1$s: feature name, %2$s: addon name, %3$s: required tier */
+				__( 'The %1$s feature requires the %2$s addon, which is available for %3$s tier and above. Please upgrade your license first.', 'wpnlweb' ),
+				$feature,
+				$addon_config['name'],
+				ucfirst( $required_tier )
+			);
+		}
+
+		return sprintf(
+			/* translators: %1$s: feature name, %2$s: addon name */
+			__( 'The %1$s feature requires the %2$s addon. Purchase this addon to unlock powerful new capabilities!', 'wpnlweb' ),
+			$feature,
+			$addon_config['name']
+		);
 	}
 } 
