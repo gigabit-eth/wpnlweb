@@ -126,17 +126,17 @@ class Wpnlweb_License_Tiers {
 			'pro' => array(
 				'sites_limit'      => 1,
 				'api_calls_month'  => 10000,
-				'storage_mb'       => 100,
+				'storage_mb'       => 50,
 				'support_level'    => 'priority',
 			),
 			'enterprise' => array(
-				'sites_limit'      => 100,
+				'sites_limit'      => 10,
 				'api_calls_month'  => 100000,
 				'storage_mb'       => 1000,
 				'support_level'    => 'dedicated',
 			),
 			'agency' => array(
-				'sites_limit'      => 1000,
+				'sites_limit'      => 100,
 				'api_calls_month'  => 1000000,
 				'storage_mb'       => 10000,
 				'support_level'    => 'white_glove',
