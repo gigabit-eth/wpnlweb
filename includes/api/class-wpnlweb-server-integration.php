@@ -191,7 +191,114 @@ class Wpnlweb_Server_Integration {
 			$results = $this->personalize_results( $results, $question );
 		}
 
+		// Add semantic search enhancement for Pro tier.
+		if ( $this->has_feature_access( 'vector_embeddings' ) ) {
+			$results = $this->add_semantic_search_results( $results, $question );
+		}
+
 		return $results;
+	}
+
+	/**
+	 * Index content for semantic search (Pro tier feature).
+	 *
+	 * @since  1.1.0
+	 * @param  array $content_items Array of content items to index.
+	 * @return array Indexing result.
+	 */
+	public function index_content_for_semantic_search( $content_items ) {
+		if ( ! $this->has_feature_access( 'vector_embeddings' ) ) {
+			return array(
+				'success' => false,
+				'error'   => 'Vector embeddings feature requires Pro tier license',
+				'upgrade_url' => $this->get_upgrade_url( 'pro' ),
+			);
+		}
+
+		if ( ! $this->api_client->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'Server connection required for semantic search',
+			);
+		}
+
+		return $this->api_client->index_content( $content_items );
+	}
+
+	/**
+	 * Perform semantic search (Pro tier feature).
+	 *
+	 * @since  1.1.0
+	 * @param  string $query          Search query.
+	 * @param  array  $search_options Search options.
+	 * @return array  Search results.
+	 */
+	public function semantic_search( $query, $search_options = array() ) {
+		if ( ! $this->has_feature_access( 'vector_embeddings' ) ) {
+			return array(
+				'success' => false,
+				'error'   => 'Vector embeddings feature requires Pro tier license',
+				'upgrade_url' => $this->get_upgrade_url( 'pro' ),
+				'results' => array(),
+			);
+		}
+
+		if ( ! $this->api_client->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'Server connection required for semantic search',
+				'results' => array(),
+			);
+		}
+
+		return $this->api_client->semantic_search( $query, $search_options );
+	}
+
+	/**
+	 * Get content recommendations (Pro tier feature).
+	 *
+	 * @since  1.1.0
+	 * @param  string $content_id Content ID for recommendations.
+	 * @param  int    $limit      Number of recommendations.
+	 * @return array  Recommendations result.
+	 */
+	public function get_content_recommendations( $content_id, $limit = 5 ) {
+		if ( ! $this->has_feature_access( 'vector_embeddings' ) ) {
+			return array(
+				'success' => false,
+				'error'   => 'Vector embeddings feature requires Pro tier license',
+				'upgrade_url' => $this->get_upgrade_url( 'pro' ),
+				'recommendations' => array(),
+			);
+		}
+
+		if ( ! $this->api_client->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'Server connection required for content recommendations',
+				'recommendations' => array(),
+			);
+		}
+
+		return $this->api_client->get_content_recommendations( $content_id, $limit );
+	}
+
+	/**
+	 * Get semantic search service health status.
+	 *
+	 * @since  1.1.0
+	 * @return array Health status information.
+	 */
+	public function get_semantic_search_health() {
+		if ( ! $this->api_client->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'Server connection not available',
+				'fallback' => true,
+			);
+		}
+
+		return $this->api_client->get_semantic_health();
 	}
 
 	/**
@@ -464,6 +571,39 @@ class Wpnlweb_Server_Integration {
 		// TODO: Implement result personalization via server.
 		// This would call the FastAPI server's personalization endpoint.
 		
+		return $results;
+	}
+
+	/**
+	 * Add semantic search results to enhance standard search.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @param  array $results Original search results.
+	 * @param  string $question User's search question.
+	 * @return array Enhanced results with semantic matches.
+	 */
+	private function add_semantic_search_results( $results, $question ) {
+		try {
+			// Perform semantic search to find related content.
+			$semantic_response = $this->api_client->semantic_search( $question, array(
+				'limit' => 5,
+				'score_threshold' => 0.5,
+			) );
+
+			if ( isset( $semantic_response['results'] ) && ! empty( $semantic_response['results'] ) ) {
+				// Add semantic results to the original results with a flag.
+				foreach ( $semantic_response['results'] as $semantic_result ) {
+					$semantic_result['_source'] = 'semantic_search';
+					$semantic_result['_enhanced'] = true;
+					$results[] = $semantic_result;
+				}
+			}
+		} catch ( Exception $e ) {
+			// Silently fail and return original results.
+			error_log( 'WPNLWeb: Semantic search enhancement failed: ' . $e->getMessage() );
+		}
+
 		return $results;
 	}
 

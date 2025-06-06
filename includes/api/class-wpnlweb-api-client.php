@@ -199,22 +199,270 @@ class Wpnlweb_Api_Client {
 	 * @return array Automation result or error.
 	 */
 	public function request_content_automation( $request_data ) {
-		$data = wp_parse_args( $request_data, array(
-			'site_url' => get_site_url(),
-			'user_id'  => get_current_user_id(),
-		) );
+		if ( ! $this->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'API client not available',
+				'fallback' => true,
+			);
+		}
 
-		$response = $this->make_request( 'POST', '/v1/agents/content-automation', $data );
+		$response = $this->make_request( 'POST', '/v1/content/automation', $request_data );
 
 		if ( is_wp_error( $response ) ) {
 			return array(
 				'success' => false,
 				'error'   => $response->get_error_message(),
-				'fallback' => 'Content automation requires server connection',
+				'fallback' => true,
 			);
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Index content for semantic search.
+	 *
+	 * @since  1.1.0
+	 * @param  array  $content_items Array of content items to index.
+	 * @param  string $site_id       Site identifier.
+	 * @return array  Indexing result.
+	 */
+	public function index_content( $content_items, $site_id = null ) {
+		if ( ! $this->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'API client not available',
+				'fallback' => true,
+			);
+		}
+
+		if ( ! $site_id ) {
+			$site_id = $this->get_site_id();
+		}
+
+		$data = array(
+			'content_items' => $content_items,
+		);
+
+		$endpoint = "/v1/semantic/{$site_id}/index";
+		$response = $this->make_request( 'POST', $endpoint, $data );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => $response->get_error_message(),
+				'fallback' => true,
+			);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Perform semantic search within site content.
+	 *
+	 * @since  1.1.0
+	 * @param  string $query          Search query.
+	 * @param  array  $search_options Search options (content_types, limit, score_threshold).
+	 * @param  string $site_id        Site identifier.
+	 * @return array  Search results.
+	 */
+	public function semantic_search( $query, $search_options = array(), $site_id = null ) {
+		if ( ! $this->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'API client not available',
+				'fallback' => true,
+				'results' => array(),
+			);
+		}
+
+		if ( ! $site_id ) {
+			$site_id = $this->get_site_id();
+		}
+
+		$defaults = array(
+			'content_types'    => null,
+			'limit'           => 10,
+			'score_threshold' => 0.7,
+		);
+
+		$options = wp_parse_args( $search_options, $defaults );
+
+		$data = array(
+			'query'           => $query,
+			'content_types'   => $options['content_types'],
+			'limit'           => $options['limit'],
+			'score_threshold' => $options['score_threshold'],
+		);
+
+		$endpoint = "/v1/semantic/{$site_id}/search";
+		$response = $this->make_request( 'POST', $endpoint, $data );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => $response->get_error_message(),
+				'fallback' => true,
+				'results' => array(),
+			);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Get content recommendations based on semantic similarity.
+	 *
+	 * @since  1.1.0
+	 * @param  string $content_id Content ID for recommendations.
+	 * @param  int    $limit      Number of recommendations to return.
+	 * @param  string $site_id    Site identifier.
+	 * @return array  Recommendations result.
+	 */
+	public function get_content_recommendations( $content_id, $limit = 5, $site_id = null ) {
+		if ( ! $this->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'API client not available',
+				'fallback' => true,
+				'recommendations' => array(),
+			);
+		}
+
+		if ( ! $site_id ) {
+			$site_id = $this->get_site_id();
+		}
+
+		$data = array(
+			'content_id' => $content_id,
+			'limit'      => $limit,
+		);
+
+		$endpoint = "/v1/semantic/{$site_id}/recommendations";
+		$response = $this->make_request( 'POST', $endpoint, $data );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => $response->get_error_message(),
+				'fallback' => true,
+				'recommendations' => array(),
+			);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Delete all indexed content for the current site.
+	 *
+	 * @since  1.1.0
+	 * @param  string $site_id Site identifier.
+	 * @return array  Deletion result.
+	 */
+	public function delete_site_content( $site_id = null ) {
+		if ( ! $this->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'API client not available',
+				'fallback' => true,
+			);
+		}
+
+		if ( ! $site_id ) {
+			$site_id = $this->get_site_id();
+		}
+
+		$endpoint = "/v1/semantic/site/{$site_id}";
+		$response = $this->make_request( 'DELETE', $endpoint );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => $response->get_error_message(),
+				'fallback' => true,
+			);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Get semantic search service health status.
+	 *
+	 * @since  1.1.0
+	 * @return array Health status information.
+	 */
+	public function get_semantic_health() {
+		if ( ! $this->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'API client not available',
+				'fallback' => true,
+			);
+		}
+
+		$response = $this->make_request( 'GET', '/v1/semantic/health', array(), false );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => $response->get_error_message(),
+				'fallback' => true,
+			);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Get site-specific statistics about indexed content.
+	 *
+	 * @since  1.1.0
+	 * @param  string $site_id Site identifier.
+	 * @return array  Site statistics.
+	 */
+	public function get_site_stats( $site_id = null ) {
+		if ( ! $this->is_available() ) {
+			return array(
+				'success' => false,
+				'error'   => 'API client not available',
+				'fallback' => true,
+			);
+		}
+
+		if ( ! $site_id ) {
+			$site_id = $this->get_site_id();
+		}
+
+		$endpoint = "/v1/semantic/{$site_id}/stats";
+		$response = $this->make_request( 'GET', $endpoint );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => $response->get_error_message(),
+				'fallback' => true,
+			);
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Get unique site identifier for API requests.
+	 *
+	 * @since  1.1.0
+	 * @access private
+	 * @return string Site identifier.
+	 */
+	private function get_site_id() {
+		// Generate a unique identifier for this WordPress site.
+		// Use site URL hash to ensure consistency across requests.
+		$site_url = get_site_url();
+		return md5( $site_url );
 	}
 
 	/**
