@@ -68,23 +68,37 @@ class Wpnlweb_Admin {
 		// AJAX handlers for live preview.
 		add_action( 'wp_ajax_wpnlweb_preview_shortcode', array( $this, 'handle_preview_shortcode' ) );
 
+		// AJAX handlers for server integration.
+		add_action( 'wp_ajax_wpnlweb_test_server_connection', array( $this, 'handle_server_connection_test' ) );
+		add_action( 'wp_ajax_wpnlweb_register_site', array( $this, 'handle_site_registration' ) );
+
 		// Add settings link to plugins page - use plugin_basename() for dynamic path.
 		$plugin_file = plugin_dir_path( __DIR__ ) . 'wpnlweb.php';
 		add_filter( 'plugin_action_links_' . plugin_basename( $plugin_file ), array( $this, 'add_settings_link' ) );
 	}
 
 	/**
-	 * Add admin menu page
+	 * Add admin menu pages
 	 *
 	 * @since    1.0.0
 	 */
 	public function add_admin_menu() {
+		// Add main settings page.
 		add_options_page(
 			__( 'WPNLWeb Settings', 'wpnlweb' ),
 			__( 'WPNLWeb', 'wpnlweb' ),
 			'manage_options',
 			'wpnlweb-settings',
 			array( $this, 'settings_page' )
+		);
+
+		// Add server settings page.
+		add_options_page(
+			__( 'WPNLWeb Server Settings', 'wpnlweb' ),
+			__( 'WPNLWeb Server', 'wpnlweb' ),
+			'manage_options',
+			'wpnlweb-server-settings',
+			array( $this, 'server_settings_page' )
 		);
 	}
 
@@ -94,7 +108,7 @@ class Wpnlweb_Admin {
 	 * @since    1.0.0
 	 */
 	public function init_settings() {
-		// Register settings with proper sanitization callbacks.
+		// Register main settings.
 		register_setting(
 			'wpnlweb_settings',
 			'wpnlweb_custom_css',
@@ -119,6 +133,16 @@ class Wpnlweb_Admin {
 			array(
 				'sanitize_callback' => array( $this, 'sanitize_primary_color' ),
 				'default'           => '#3b82f6',
+			)
+		);
+
+		// Register server settings.
+		register_setting(
+			'wpnlweb_server_settings',
+			'wpnlweb_api_server_url',
+			array(
+				'sanitize_callback' => array( $this, 'sanitize_server_url' ),
+				'default'           => '',
 			)
 		);
 
@@ -205,14 +229,42 @@ class Wpnlweb_Admin {
 	}
 
 	/**
+	 * Sanitize server URL setting
+	 *
+	 * @since    1.0.3
+	 * @param    string $input Server URL input.
+	 * @return   string Sanitized URL
+	 */
+	public function sanitize_server_url( $input ) {
+		if ( empty( $input ) ) {
+			return '';
+		}
+
+		// Remove whitespace.
+		$input = trim( $input );
+
+		// Validate URL format.
+		$url = esc_url_raw( $input );
+		
+		// Make sure it's a valid HTTP/HTTPS URL.
+		if ( filter_var( $url, FILTER_VALIDATE_URL ) && 
+			 ( strpos( $url, 'http://' ) === 0 || strpos( $url, 'https://' ) === 0 ) ) {
+			return rtrim( $url, '/' ); // Remove trailing slash for consistency.
+		}
+
+		// Return empty string if invalid.
+		return '';
+	}
+
+	/**
 	 * Enqueue admin assets
 	 *
 	 * @since    1.0.0
 	 * @param    string $hook The current admin page hook.
 	 */
 	public function enqueue_admin_assets( $hook ) {
-		// Only load on our settings page.
-		if ( 'settings_page_wpnlweb-settings' !== $hook ) {
+		// Only load on our settings pages.
+		if ( 'settings_page_wpnlweb-settings' !== $hook && 'settings_page_wpnlweb-server-settings' !== $hook ) {
 			return;
 		}
 
@@ -710,6 +762,31 @@ class Wpnlweb_Admin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Server settings page HTML
+	 *
+	 * @since    1.0.3
+	 */
+	public function server_settings_page() {
+		// Check if the partial file exists.
+		$partial_path = plugin_dir_path( __FILE__ ) . 'partials/wpnlweb-admin-server-settings.php';
+		
+		if ( file_exists( $partial_path ) ) {
+			include $partial_path;
+		} else {
+			// Fallback HTML if partial file is missing.
+			?>
+			<div class="wrap">
+				<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+				<div class="notice notice-error">
+					<p><?php esc_html_e( 'Server settings template file is missing. Please check your plugin installation.', 'wpnlweb' ); ?></p>
+					<p><code><?php echo esc_html( $partial_path ); ?></code></p>
+				</div>
+			</div>
+			<?php
+		}
 	}
 
 	/**
@@ -1226,5 +1303,100 @@ class Wpnlweb_Admin {
 		$settings_link = '<a href="' . esc_url( admin_url( 'options-general.php?page=wpnlweb-settings' ) ) . '">' . __( 'Settings', 'wpnlweb' ) . '</a>';
 		array_unshift( $links, $settings_link );
 		return $links;
+	}
+
+	/**
+	 * Handle AJAX request for server connection test
+	 *
+	 * @since    1.0.3
+	 */
+	public function handle_server_connection_test() {
+		// Verify nonce.
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'wpnlweb_admin_nonce' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed', 'wpnlweb' ) ) );
+		}
+
+		// Check permissions.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'wpnlweb' ) ) );
+		}
+
+		// Test connection.
+		if ( class_exists( 'Wpnlweb_Api_Client' ) && class_exists( 'Wpnlweb_Auth_Manager' ) ) {
+			try {
+				$auth_manager = new Wpnlweb_Auth_Manager();
+				$api_client = new Wpnlweb_Api_Client( $auth_manager );
+				$test_result = $api_client->test_connection();
+				
+				// Store result for display.
+				set_transient( 'wpnlweb_last_connection_test', $test_result, 300 ); // 5 minutes.
+				
+				if ( $test_result['success'] ) {
+					wp_send_json_success( array(
+						'message' => __( 'Connection successful!', 'wpnlweb' ),
+						'data' => $test_result
+					) );
+				} else {
+					wp_send_json_error( array(
+						'message' => $test_result['error'] ?? __( 'Connection failed', 'wpnlweb' ),
+						'data' => $test_result
+					) );
+				}
+			} catch ( Exception $e ) {
+				wp_send_json_error( array( 'message' => $e->getMessage() ) );
+			}
+		} else {
+			wp_send_json_error( array( 'message' => __( 'Server integration classes not available', 'wpnlweb' ) ) );
+		}
+	}
+
+	/**
+	 * Handle AJAX request for site registration
+	 *
+	 * @since    1.0.3
+	 */
+	public function handle_site_registration() {
+		// Verify nonce.
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'wpnlweb_admin_nonce' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed', 'wpnlweb' ) ) );
+		}
+
+		// Check permissions.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Insufficient permissions', 'wpnlweb' ) ) );
+		}
+
+		// Register site.
+		if ( class_exists( 'Wpnlweb_Auth_Manager' ) ) {
+			try {
+				$auth_manager = new Wpnlweb_Auth_Manager();
+				
+				// Get license info (if available).
+				$license_key = 'pro_test_license_123'; // TODO: Get from actual license system.
+				
+				$registration_result = $auth_manager->register_site( array(
+					'license_key' => $license_key
+				) );
+				
+				if ( $registration_result['success'] ) {
+					wp_send_json_success( array(
+						'message' => sprintf(
+							__( 'Site registered successfully! Site ID: %s', 'wpnlweb' ),
+							$registration_result['data']['site_id']
+						),
+						'data' => $registration_result['data']
+					) );
+				} else {
+					wp_send_json_error( array(
+						'message' => $registration_result['error'] ?? __( 'Registration failed', 'wpnlweb' ),
+						'data' => $registration_result
+					) );
+				}
+			} catch ( Exception $e ) {
+				wp_send_json_error( array( 'message' => $e->getMessage() ) );
+			}
+		} else {
+			wp_send_json_error( array( 'message' => __( 'Auth manager not available', 'wpnlweb' ) ) );
+		}
 	}
 }

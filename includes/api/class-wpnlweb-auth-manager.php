@@ -133,107 +133,62 @@ class Wpnlweb_Auth_Manager {
 	}
 
 	/**
-	 * Store access and refresh tokens from authentication.
+	 * Store authentication tokens from registration response.
 	 *
 	 * @since  1.0.3
-	 * @param  array $token_data Token data from authentication response.
-	 * @return bool  True if tokens stored successfully.
+	 * @param  array $token_data Token data from server response.
+	 * @return bool Success status.
 	 */
-	public function store_tokens( $token_data ) {
-		if ( ! isset( $token_data['access_token'] ) ) {
+	private function store_tokens( $token_data ) {
+		try {
+			// Prepare token storage.
+			$tokens = array(
+				'access_token'  => $token_data['access_token'] ?? '',
+				'refresh_token' => $token_data['refresh_token'] ?? '',
+				'expires_in'    => $token_data['expires_in'] ?? 3600,
+				'token_type'    => $token_data['token_type'] ?? 'bearer',
+				'created_at'    => time(),
+			);
+
+			// Calculate expiry time.
+			$tokens['expires_at'] = $tokens['created_at'] + $tokens['expires_in'];
+
+			// Store tokens encrypted.
+			$encrypted_tokens = $this->encrypt_data( wp_json_encode( $tokens ) );
+			if ( ! $encrypted_tokens ) {
+				error_log( 'WPNLWeb: Failed to encrypt tokens' );
+				return false;
+			}
+
+			update_option( $this->option_names['tokens'], $encrypted_tokens );
+
+			// Schedule token refresh.
+			$this->schedule_token_refresh();
+
+			return true;
+
+		} catch ( Exception $e ) {
+			error_log( sprintf( 'WPNLWeb: Token storage failed: %s', $e->getMessage() ) );
 			return false;
 		}
-
-		$access_token = $token_data['access_token'];
-		$refresh_token = isset( $token_data['refresh_token'] ) ? $token_data['refresh_token'] : null;
-		$expires_in = isset( $token_data['expires_in'] ) ? $token_data['expires_in'] : 3600; // Default 1 hour.
-
-		// Calculate expiration time.
-		$expires_at = time() + $expires_in;
-
-		// Store tokens securely.
-		$results = array(
-			update_option( $this->option_names['access_token'], $this->encrypt_data( $access_token ) ),
-			update_option( $this->option_names['token_expires'], $expires_at ),
-		);
-
-		if ( $refresh_token ) {
-			$results[] = update_option( $this->option_names['refresh_token'], $this->encrypt_data( $refresh_token ) );
-		}
-
-		$success = ! in_array( false, $results, true );
-
-		if ( $success ) {
-			// Schedule token refresh before expiry.
-			$this->schedule_token_refresh();
-			error_log( 'WPNLWeb: Authentication tokens stored successfully' );
-		}
-
-		return $success;
 	}
 
 	/**
 	 * Refresh access token using refresh token.
 	 *
 	 * @since  1.0.3
-	 * @return bool True if token refreshed successfully.
+	 * @return array Refresh result.
 	 */
 	public function refresh_access_token() {
 		$refresh_token = $this->get_refresh_token();
 		
 		if ( empty( $refresh_token ) ) {
-			return false;
+			return array(
+				'success' => false,
+				'error'   => 'No refresh token available',
+			);
 		}
 
-		$server_url = get_option( 'wpnlweb_api_server_url', '' );
-		if ( empty( $server_url ) ) {
-			return false;
-		}
-
-		$url = rtrim( $server_url, '/' ) . '/v1/auth/refresh';
-		$headers = array(
-			'Content-Type' => 'application/json',
-			'Authorization' => 'Bearer ' . $refresh_token,
-		);
-
-		$response = wp_remote_post( $url, array(
-			'headers' => $headers,
-			'body'    => wp_json_encode( array(
-				'site_url' => get_site_url(),
-			) ),
-			'timeout' => 30,
-		) );
-
-		if ( is_wp_error( $response ) ) {
-			error_log( 'WPNLWeb: Token refresh failed - ' . $response->get_error_message() );
-			return false;
-		}
-
-		$status_code = wp_remote_retrieve_response_code( $response );
-		if ( $status_code !== 200 ) {
-			error_log( 'WPNLWeb: Token refresh failed with status ' . $status_code );
-			return false;
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$token_data = json_decode( $body, true );
-
-		if ( json_last_error() !== JSON_ERROR_NONE || ! isset( $token_data['access_token'] ) ) {
-			error_log( 'WPNLWeb: Invalid token refresh response' );
-			return false;
-		}
-
-		return $this->store_tokens( $token_data );
-	}
-
-	/**
-	 * Authenticate with FastAPI server using Clerk.com integration.
-	 *
-	 * @since  1.0.3
-	 * @param  array $auth_data Authentication data (email, password, or clerk_token).
-	 * @return array Authentication result.
-	 */
-	public function authenticate( $auth_data ) {
 		$server_url = get_option( 'wpnlweb_api_server_url', '' );
 		if ( empty( $server_url ) ) {
 			return array(
@@ -242,7 +197,112 @@ class Wpnlweb_Auth_Manager {
 			);
 		}
 
-		$url = rtrim( $server_url, '/' ) . '/v1/auth/wordpress-login';
+		$url = rtrim( $server_url, '/' ) . '/v1/auth/refresh';
+		$headers = array(
+			'Content-Type'  => 'application/json',
+			'Authorization' => 'Bearer ' . $refresh_token,
+		);
+
+		$response = wp_remote_post( $url, array(
+			'headers' => $headers,
+			'body'    => wp_json_encode( array( 'refresh_token' => $refresh_token ) ),
+			'timeout' => 30,
+		) );
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => $response->get_error_message(),
+			);
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		$body = wp_remote_retrieve_body( $response );
+		$response_data = json_decode( $body, true );
+
+		if ( $status_code !== 200 ) {
+			$error_message = isset( $response_data['detail'] ) 
+				? $response_data['detail'] 
+				: 'Token refresh failed';
+			
+			return array(
+				'success' => false,
+				'error'   => $error_message,
+			);
+		}
+
+		// Store new tokens.
+		if ( isset( $response_data['access_token'] ) ) {
+			$this->store_tokens( $response_data );
+		}
+
+		return array(
+			'success' => true,
+			'data'    => $response_data,
+		);
+	}
+
+	/**
+	 * Refresh token (public interface for manual refresh).
+	 *
+	 * @since  1.0.3
+	 * @return array Refresh result.
+	 */
+	public function refresh_token() {
+		// Try automatic token refresh first.
+		$result = $this->refresh_access_token();
+		
+		if ( $result['success'] ) {
+			// Schedule next refresh.
+			$this->schedule_token_refresh();
+			
+			return array(
+				'success' => true,
+				'data'    => $result['data'],
+			);
+		}
+
+		// If refresh failed, try re-registration as fallback.
+		error_log( 'WPNLWeb: Token refresh failed, attempting re-registration: ' . $result['error'] );
+		
+		// Clear existing tokens to force fresh registration.
+		delete_option( $this->option_names['access_token'] );
+		delete_option( $this->option_names['refresh_token'] );
+		delete_option( $this->option_names['token_expires'] );
+		
+		// Attempt to re-register site (this will generate new tokens).
+		$registration_result = $this->register_site();
+		
+		if ( $registration_result['success'] ) {
+			return array(
+				'success' => true,
+				'data'    => $registration_result['data'],
+			);
+		}
+
+		return array(
+			'success' => false,
+			'error'   => 'Token refresh and re-registration both failed: ' . $registration_result['error'],
+		);
+	}
+
+	/**
+	 * Authenticate with FastAPI server using WordPress site credentials.
+	 *
+	 * @since  1.0.3
+	 * @param  array $auth_data Authentication data (optional additional params).
+	 * @return array Authentication result.
+	 */
+	public function authenticate( $auth_data = array() ) {
+		$server_url = get_option( 'wpnlweb_api_server_url', '' );
+		if ( empty( $server_url ) ) {
+			return array(
+				'success' => false,
+				'error'   => 'Server URL not configured',
+			);
+		}
+
+		$url = rtrim( $server_url, '/' ) . '/v1/wordpress/authenticate';
 		$headers = array(
 			'Content-Type' => 'application/json',
 		);
@@ -367,6 +427,11 @@ class Wpnlweb_Auth_Manager {
 			$this->store_api_key( $response_data['api_key'] );
 		}
 
+		// Store access tokens if provided (new in v1.0.3).
+		if ( isset( $response_data['access_token'] ) ) {
+			$this->store_tokens( $response_data );
+		}
+
 		return array(
 			'success' => true,
 			'data'    => $response_data,
@@ -421,12 +486,12 @@ class Wpnlweb_Auth_Manager {
 	}
 
 	/**
-	 * Schedule token refresh cron job.
+	 * Schedule token refresh before expiry.
 	 *
 	 * @since  1.0.3
-	 * @access private
+	 * @access public
 	 */
-	private function schedule_token_refresh() {
+	public function schedule_token_refresh() {
 		$expires = get_option( $this->option_names['token_expires'], 0 );
 		
 		if ( $expires > 0 ) {
@@ -448,7 +513,14 @@ class Wpnlweb_Auth_Manager {
 	 * @since  1.0.3
 	 */
 	public function refresh_token_cron() {
-		$this->refresh_access_token();
+		$result = $this->refresh_access_token();
+		
+		if ( $result['success'] ) {
+			error_log( 'WPNLWeb: Automatic token refresh successful' );
+			$this->schedule_token_refresh();
+		} else {
+			error_log( 'WPNLWeb: Automatic token refresh failed: ' . $result['error'] );
+		}
 	}
 
 	/**

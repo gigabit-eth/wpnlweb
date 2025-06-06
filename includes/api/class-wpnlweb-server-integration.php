@@ -90,6 +90,7 @@ class Wpnlweb_Server_Integration {
 		add_action( 'wpnlweb_admin_server_status', array( $this, 'display_server_status' ) );
 		add_action( 'wp_ajax_wpnlweb_test_server_connection', array( $this, 'ajax_test_connection' ) );
 		add_action( 'wp_ajax_wpnlweb_register_site', array( $this, 'ajax_register_site' ) );
+		add_action( 'wp_ajax_wpnlweb_refresh_token', array( $this, 'ajax_refresh_token' ) );
 		
 		// Activation/deactivation hooks.
 		add_action( 'wpnlweb_plugin_activated', array( $this, 'on_plugin_activation' ) );
@@ -119,12 +120,12 @@ class Wpnlweb_Server_Integration {
 		// Check with server for premium features.
 		$server_response = $this->api_client->validate_feature_access( $feature, $user_id );
 
-		if ( is_wp_error( $server_response ) ) {
-			// Log error but don't deny access if local validation passed.
+		// validate_feature_access always returns an array (never WP_Error due to fallback handling)
+		if ( isset( $server_response['fallback'] ) && $server_response['fallback'] ) {
+			// Server was unavailable, log but don't deny access if local validation passed.
 			error_log( sprintf(
-				'WPNLWeb: Server feature validation failed for %s: %s',
-				$feature,
-				$server_response->get_error_message()
+				'WPNLWeb: Server feature validation unavailable for %s, using fallback',
+				$feature
 			) );
 			return $has_access;
 		}
@@ -315,6 +316,36 @@ class Wpnlweb_Server_Integration {
 		} else {
 			wp_send_json_error( array(
 				'message' => 'Registration failed: ' . $result['error'],
+			) );
+		}
+	}
+
+	/**
+	 * AJAX handler for refreshing token.
+	 *
+	 * @since  1.0.3
+	 */
+	public function ajax_refresh_token() {
+		// Verify nonce.
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'wpnlweb_admin_nonce' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		// Check user capabilities.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Insufficient permissions' );
+		}
+
+		$result = $this->auth_manager->refresh_token();
+
+		if ( $result['success'] ) {
+			wp_send_json_success( array(
+				'message' => 'Token refreshed successfully',
+				'data'    => $result['data'],
+			) );
+		} else {
+			wp_send_json_error( array(
+				'message' => 'Token refresh failed: ' . $result['error'],
 			) );
 		}
 	}
