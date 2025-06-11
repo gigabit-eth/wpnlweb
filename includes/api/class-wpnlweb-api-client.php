@@ -78,7 +78,7 @@ class Wpnlweb_Api_Client {
 	 */
 	public function __construct( $auth_manager ) {
 		$this->auth_manager = $auth_manager;
-		$this->server_url = get_option( 'wpnlweb_api_server_url', '' );
+		$this->server_url = 'https://api.wpnlweb.com';
 		
 		// Apply filters for configuration.
 		$this->timeout = apply_filters( 'wpnlweb_api_timeout', $this->timeout );

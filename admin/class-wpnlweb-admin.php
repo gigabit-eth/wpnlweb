@@ -75,6 +75,16 @@ class Wpnlweb_Admin {
 		// Add settings link to plugins page - use plugin_basename() for dynamic path.
 		$plugin_file = plugin_dir_path( __DIR__ ) . 'wpnlweb.php';
 		add_filter( 'plugin_action_links_' . plugin_basename( $plugin_file ), array( $this, 'add_settings_link' ) );
+
+		// Initialize components.
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
+
+		// Add AJAX handlers for production migration.
+		add_action( 'wp_ajax_wpnlweb_update_api_url', array( $this, 'ajax_update_api_url' ) );
+		add_action( 'wp_ajax_wpnlweb_test_connection', array( $this, 'ajax_test_connection' ) );
 	}
 
 	/**
@@ -92,14 +102,7 @@ class Wpnlweb_Admin {
 			array( $this, 'settings_page' )
 		);
 
-		// Add server settings page.
-		add_options_page(
-			__( 'WPNLWeb Server Settings', 'wpnlweb' ),
-			__( 'WPNLWeb Server', 'wpnlweb' ),
-			'manage_options',
-			'wpnlweb-server-settings',
-			array( $this, 'server_settings_page' )
-		);
+
 	}
 
 	/**
@@ -136,15 +139,7 @@ class Wpnlweb_Admin {
 			)
 		);
 
-		// Register server settings.
-		register_setting(
-			'wpnlweb_server_settings',
-			'wpnlweb_api_server_url',
-			array(
-				'sanitize_callback' => array( $this, 'sanitize_server_url' ),
-				'default'           => '',
-			)
-		);
+
 
 		// Add a hook to clear caches when settings are saved.
 		add_action( 'update_option_wpnlweb_theme_mode', array( $this, 'clear_style_caches' ) );
@@ -228,33 +223,7 @@ class Wpnlweb_Admin {
 		return '#3b82f6';
 	}
 
-	/**
-	 * Sanitize server URL setting
-	 *
-	 * @since    1.0.3
-	 * @param    string $input Server URL input.
-	 * @return   string Sanitized URL
-	 */
-	public function sanitize_server_url( $input ) {
-		if ( empty( $input ) ) {
-			return '';
-		}
 
-		// Remove whitespace.
-		$input = trim( $input );
-
-		// Validate URL format.
-		$url = esc_url_raw( $input );
-		
-		// Make sure it's a valid HTTP/HTTPS URL.
-		if ( filter_var( $url, FILTER_VALIDATE_URL ) && 
-			 ( strpos( $url, 'http://' ) === 0 || strpos( $url, 'https://' ) === 0 ) ) {
-			return rtrim( $url, '/' ); // Remove trailing slash for consistency.
-		}
-
-		// Return empty string if invalid.
-		return '';
-	}
 
 	/**
 	 * Enqueue admin assets
@@ -764,30 +733,7 @@ class Wpnlweb_Admin {
 		<?php
 	}
 
-	/**
-	 * Server settings page HTML
-	 *
-	 * @since    1.0.3
-	 */
-	public function server_settings_page() {
-		// Check if the partial file exists.
-		$partial_path = plugin_dir_path( __FILE__ ) . 'partials/wpnlweb-admin-server-settings.php';
-		
-		if ( file_exists( $partial_path ) ) {
-			include $partial_path;
-		} else {
-			// Fallback HTML if partial file is missing.
-			?>
-			<div class="wrap">
-				<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-				<div class="notice notice-error">
-					<p><?php esc_html_e( 'Server settings template file is missing. Please check your plugin installation.', 'wpnlweb' ); ?></p>
-					<p><code><?php echo esc_html( $partial_path ); ?></code></p>
-				</div>
-			</div>
-			<?php
-		}
-	}
+
 
 	/**
 	 * Handle AJAX request for shortcode preview
