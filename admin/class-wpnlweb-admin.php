@@ -79,12 +79,8 @@ class Wpnlweb_Admin {
 		// Initialize components.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
-		// Add AJAX handlers for production migration.
-		add_action( 'wp_ajax_wpnlweb_update_api_url', array( $this, 'ajax_update_api_url' ) );
-		add_action( 'wp_ajax_wpnlweb_test_connection', array( $this, 'ajax_test_connection' ) );
+
 	}
 
 	/**
@@ -232,8 +228,8 @@ class Wpnlweb_Admin {
 	 * @param    string $hook The current admin page hook.
 	 */
 	public function enqueue_admin_assets( $hook ) {
-		// Only load on our settings pages.
-		if ( 'settings_page_wpnlweb-settings' !== $hook && 'settings_page_wpnlweb-server-settings' !== $hook ) {
+		// Only load on our settings page.
+		if ( 'settings_page_wpnlweb-settings' !== $hook ) {
 			return;
 		}
 
